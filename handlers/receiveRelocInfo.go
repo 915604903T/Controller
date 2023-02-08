@@ -77,7 +77,7 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 
 	unzipFile(scene2)
 
-	cmd := exec.Command("spaintgui",
+	cmd := exec.Command("spaintgui-relocalise",
 		"-f", "collaborative_config.ini",
 		"--scene1", scene1,
 		"--scene2", scene2,
