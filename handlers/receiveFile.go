@@ -17,9 +17,8 @@ func runRender(sceneName string) {
 	cmd := exec.Command("spaintgui",
 		"-f", "collaborative_config.ini",
 		"--name", sceneName,
-		"-s", sceneName,
-		"-t", "Disk")
-	// cmd.Env = append(cmd.Env, "CUDA_VISIBLE_DEVICE=1")
+		"-s", sceneName, "-t", "Disk")
+	// cmd.Env = append(cmd.Env, "CUDA_VISIBLE_DEVICES=1")
 	err := cmd.Run()
 	if err != nil {
 		log.Fatal("run ", sceneName, " error: ", err)

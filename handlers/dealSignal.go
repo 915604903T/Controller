@@ -38,7 +38,7 @@ func dealRelocaliseFinish(sceneName string) {
 	names := strings.Fields(sceneName)
 	scene1, scene2 := names[0], names[1]
 
-	poseFileName := scene1 + "-" + scene2 + ".txt"
+	poseFileName := "global_poses/" + scene1 + "-" + scene2 + ".txt"
 	poseFile, err := os.Open(poseFileName)
 	if err != nil {
 		panic(err)
