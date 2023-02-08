@@ -33,7 +33,8 @@ func MakeSendSceneModelHandler() http.HandlerFunc {
 			if !info.IsDir() {
 				fileName := info.Name()
 				if strings.Contains(fileName, "model") ||
-					strings.Contains(fileName, "txt") {
+					strings.Contains(fileName, ".txt") ||
+					strings.Contains(fileName, ".ini") {
 					file, err := os.Open(fileName)
 					if err != nil {
 						panic(err)
