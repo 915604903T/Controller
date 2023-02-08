@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"path/filepath"
+//	"path/filepath"
 
 	"github.com/gorilla/mux"
 )
@@ -35,11 +35,16 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 		defer r.Body.Close()
 
 		// Create directory to save images, poses, calib.txt
-		os.Mkdir(sceneName, 0644)
+		os.Mkdir(sceneName, 0755)
 		// read multiple files
 		reader, err := r.MultipartReader()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		err = os.Chdir("./"+sceneName)
+		if err!=nil {
+			log.Fatal(err)
 			return
 		}
 		for {
@@ -52,14 +57,19 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 				data, _ := ioutil.ReadAll(part)
 				fmt.Printf("FormData=[%s]\n", string(data))
 			} else { // This is FileData
-				//Filename contains the directory no dir?????????
-				dst, _ := os.Create(filepath.Join(sceneName, part.FileName()))
-				defer dst.Close()
+				//Filename not contains the directory
+				dst, _ := os.Create(part.FileName())
 				io.Copy(dst, part)
+				dst.Close()
 			}
+		}
+		err = os.Chdir("../")
+		if err!=nil {
+			log.Fatal(err)
+			return
 		}
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("save file success!"))
-		go runRender(sceneName)
+		// go runRender(sceneName)
 	}
 }
