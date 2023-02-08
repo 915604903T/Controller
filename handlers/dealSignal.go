@@ -29,7 +29,7 @@ func dealRenderFinish(sceneName string) {
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		resp_body, _ := ioutil.ReadAll(resp.Body)
-		log.Fatal("receive error from relocalise: ", resp_body)
+		log.Fatal("receive error from center server for render finish request: ", resp_body)
 		return
 	}
 }
@@ -100,7 +100,7 @@ func DealSignal() {
 		select {
 		case sceneName := <-renderFinish:
 			dealRenderFinish(sceneName)
-		case sceneName := <-renderFinish:
+		case sceneName := <-relocaliseFinish:
 			dealRelocaliseFinish(sceneName)
 		}
 	}

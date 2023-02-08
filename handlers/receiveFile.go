@@ -19,10 +19,11 @@ func runRender(sceneName string) {
 		"-f", "collaborative_config.ini",
 		"--name", sceneName,
 		"-s", sceneName, "-t", "Disk")
-	// cmd.Env = append(cmd.Env, "CUDA_VISIBLE_DEVICES=1")
+	cmd.Env = append(cmd.Env, "CUDA_VISIBLE_DEVICES=2")
+	fmt.Println("cmd args: ", cmd.Args)
 	err := cmd.Run()
 	if err != nil {
-		log.Fatal("run ", sceneName, " error: ", err)
+		log.Fatal("spaintgui-processVoxel ", sceneName, " error: ", err)
 	}
 	renderFinish <- sceneName
 }
@@ -60,6 +61,6 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 		}
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("save file success!"))
-		// go runRender(sceneName)
+		go runRender(sceneName)
 	}
 }

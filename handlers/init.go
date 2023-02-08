@@ -1,6 +1,6 @@
 package handlers
 
-var centerServerAddr string = "127.0.0.1:23333"
+var centerServerAddr string = "http://127.0.0.1:23333"
 var renderFinish chan string
 var relocaliseFinish chan string //two scene
 
