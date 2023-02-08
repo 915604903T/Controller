@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/gorilla/mux"
 )
@@ -51,8 +52,8 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 				data, _ := ioutil.ReadAll(part)
 				fmt.Printf("FormData=[%s]\n", string(data))
 			} else { // This is FileData
-				//Filename contains the directory
-				dst, _ := os.Create(part.FileName())
+				//Filename contains the directory no dir?????????
+				dst, _ := os.Create(filepath.Join(sceneName, part.FileName()))
 				defer dst.Close()
 				io.Copy(dst, part)
 			}

@@ -24,7 +24,7 @@ func main() {
 	go handlers.DealSignal()
 
 	// regard tcp port as env viarable
-	tcpPort, _ := strconv.Atoi(os.Getenv("tcpport"))
+	tcpPort, _ := strconv.Atoi(os.Getenv("PORT"))
 	s := &http.Server{
 		Addr:    fmt.Sprintf(":%d", tcpPort),
 		Handler: router,
