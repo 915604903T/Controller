@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-//	"path/filepath"
+	"path/filepath"
 
 	"github.com/gorilla/mux"
 )
@@ -42,11 +42,6 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		err = os.Chdir("./"+sceneName)
-		if err!=nil {
-			log.Fatal(err)
-			return
-		}
 		for {
 			part, err := reader.NextPart()
 			if err == io.EOF {
@@ -58,15 +53,10 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 				fmt.Printf("FormData=[%s]\n", string(data))
 			} else { // This is FileData
 				//Filename not contains the directory
-				dst, _ := os.Create(part.FileName())
+				dst, _ := os.Create(filepath.Join(sceneName, part.FileName()))
 				io.Copy(dst, part)
 				dst.Close()
 			}
-		}
-		err = os.Chdir("../")
-		if err!=nil {
-			log.Fatal(err)
-			return
 		}
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("save file success!"))
