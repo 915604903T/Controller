@@ -14,7 +14,7 @@ import (
 
 func runRender(sceneName string) {
 	// save scene files in the file with the same name
-	cmd := exec.Command("spaintgui",
+	cmd := exec.Command("spaintgui-processVoxel",
 		"-f", "collaborative_config.ini",
 		"--name", sceneName,
 		"-s", sceneName, "-t", "Disk")
