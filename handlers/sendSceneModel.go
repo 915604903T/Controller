@@ -4,7 +4,7 @@ import (
 	"archive/zip"
 	"fmt"
 	"io"
-	"io/fs"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -13,6 +13,27 @@ import (
 
 	"github.com/gorilla/mux"
 )
+
+func getFileList(directory string) []string {
+	fileList := []string{}
+	files, err := ioutil.ReadDir(directory)
+	if err != nil {
+		panic(err)
+	}
+	for _, file := range files {
+		name := file.Name()
+		path := filepath.Join(directory, name)
+		if !file.IsDir() {
+			if strings.Contains(name, "txt") || strings.Contains(directory, "model") {
+				fileList = append(fileList, path)
+			}
+		} else if strings.Contains(path, "model") {
+			subDirFileList := getFileList(path)
+			fileList = append(fileList, subDirFileList...)
+		}
+	}
+	return fileList
+}
 
 func MakeSendSceneModelHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -26,35 +47,25 @@ func MakeSendSceneModelHandler() http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/zip")
 		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", archieveName))
 
+		// write zip files
 		zipWriter := zip.NewWriter(w)
 		defer zipWriter.Close()
-
-		err := filepath.Walk(sceneName, func(path string, info fs.FileInfo, err error) error {
-			log.Print("this is name: ", info.Name())
-			if !info.IsDir() {
-				fileName := info.Name()
-				if strings.Contains(fileName, "model") ||
-					strings.Contains(fileName, ".txt") ||
-					strings.Contains(fileName, ".ini") {
-					file, err := os.Open(fileName)
-					if err != nil {
-						panic(err)
-					}
-					tmpWriter, err := zipWriter.Create(fileName)
-					if err != nil {
-						panic(err)
-					}
-					_, err = io.Copy(tmpWriter, file)
-					if err != nil {
-						panic(err)
-					}
-					file.Close()
-				}
+		archiveFiles := getFileList(sceneName)
+		for _, fileName := range archiveFiles {
+			log.Println("zip ", fileName)
+			file, err := os.Open(fileName)
+			if err != nil {
+				panic(err)
 			}
-			return nil
-		})
-		if err != nil {
-			panic(err)
+			tmpWriter, err := zipWriter.Create(fileName)
+			if err != nil {
+				panic(err)
+			}
+			_, err = io.Copy(tmpWriter, file)
+			if err != nil {
+				panic(err)
+			}
+			file.Close()
 		}
 		w.WriteHeader(http.StatusOK)
 	}
