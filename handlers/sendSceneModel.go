@@ -30,6 +30,7 @@ func MakeSendSceneModelHandler() http.HandlerFunc {
 		defer zipWriter.Close()
 
 		err := filepath.Walk(sceneName, func(path string, info fs.FileInfo, err error) error {
+			log.Print("this is name: ", info.Name())
 			if !info.IsDir() {
 				fileName := info.Name()
 				if strings.Contains(fileName, "model") ||
