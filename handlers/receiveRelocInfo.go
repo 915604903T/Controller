@@ -3,6 +3,7 @@ package handlers
 import (
 	"archive/zip"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -21,7 +22,7 @@ func unzipFile(archiveName string) {
 	}
 	defer archive.Close()
 	for _, f := range archive.File {
-		filePath := filepath.Join(archiveName, f.Name)
+		filePath := f.Name
 		log.Println("[receiveRelocInfo]: this is filePath: ", filePath)
 		if f.FileInfo().IsDir() {
 			log.Println("creating directory...")
@@ -84,10 +85,31 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 		"-s", scene1, "-t", "Disk",
 		"-s", scene2, "-t", "Disk")
 	cmd.Env = append(cmd.Env, "CUDA_VISIBLE_DEVICES=2")
-	err = cmd.Run()
-	if err != nil {
-		panic(err)
-	}
+	fmt.Println("relocalise cmd args: ", cmd.Args)
+
+    stdout, err := cmd.StdoutPipe()
+    if err!=nil {
+        panic(err)
+    }
+	cmd.Stderr = cmd.Stdout
+    if err = cmd.Start(); err != nil {
+        panic(err)
+    }
+    for {
+        tmp := make([]byte, 1024)
+        _, err := stdout.Read(tmp)
+        fmt.Print(string(tmp))
+        if err != nil {
+            break
+        }
+    }
+    if err = cmd.Wait(); err != nil {
+        panic(err)
+    }
+	// err = cmd.Run()
+	// if err != nil {
+	// 	panic(err)
+	// }
 	relocaliseFinish <- scene1 + " " + scene2
 }
 func MakeReceiveRelocInfoHandler() http.HandlerFunc {

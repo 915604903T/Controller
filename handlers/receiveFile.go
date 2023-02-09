@@ -21,10 +21,30 @@ func runRender(sceneName string) {
 		"-s", sceneName, "-t", "Disk")
 	cmd.Env = append(cmd.Env, "CUDA_VISIBLE_DEVICES=2")
 	fmt.Println("cmd args: ", cmd.Args)
-	err := cmd.Run()
-	if err != nil {
-		log.Fatal("spaintgui-processVoxel ", sceneName, " error: ", err)
+
+	stdout, err := cmd.StdoutPipe()
+	if err!=nil {
+		panic(err)
 	}
+	cmd.Stderr = cmd.Stdout
+	if err = cmd.Start(); err != nil {
+		panic(err)
+	}
+	for {
+		tmp := make([]byte, 1024)
+		_, err := stdout.Read(tmp)
+		fmt.Print(string(tmp))
+		if err != nil {
+			break
+		}
+	}
+	if err = cmd.Wait(); err != nil {
+		panic(err)
+	}
+	// err := cmd.Run()
+	// if err != nil {
+	// 	log.Fatal("spaintgui-processVoxel ", sceneName, " error: ", err)
+	// }
 	renderFinish <- sceneName
 }
 
