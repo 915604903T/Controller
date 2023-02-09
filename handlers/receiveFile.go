@@ -23,7 +23,7 @@ func runRender(sceneName string) {
 	fmt.Println("cmd args: ", cmd.Args)
 
 	stdout, err := cmd.StdoutPipe()
-	if err!=nil {
+	if err != nil {
 		panic(err)
 	}
 	cmd.Stderr = cmd.Stdout
@@ -41,10 +41,6 @@ func runRender(sceneName string) {
 	if err = cmd.Wait(); err != nil {
 		panic(err)
 	}
-	// err := cmd.Run()
-	// if err != nil {
-	// 	log.Fatal("spaintgui-processVoxel ", sceneName, " error: ", err)
-	// }
 	renderFinish <- sceneName
 }
 

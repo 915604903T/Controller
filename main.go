@@ -29,5 +29,6 @@ func main() {
 		Addr:    fmt.Sprintf(":%d", tcpPort),
 		Handler: router,
 	}
+	log.Println("listen on port: ", tcpPort)
 	log.Fatal(s.ListenAndServe())
 }

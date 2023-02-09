@@ -39,7 +39,7 @@ func MakeSendSceneModelHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		sceneName := vars["name"]
-		log.Print("request ", sceneName, " file for relocalise")
+		log.Print("request zip file ", sceneName, " file for relocalise")
 		defer r.Body.Close()
 
 		// add pose File and model to archieve file
