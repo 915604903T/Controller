@@ -67,6 +67,5 @@ func MakeSendSceneModelHandler() http.HandlerFunc {
 			}
 			file.Close()
 		}
-		w.WriteHeader(http.StatusOK)
 	}
 }
