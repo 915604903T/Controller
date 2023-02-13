@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"log"
 	"os"
+
+	"github.com/NVIDIA/go-nvml/pkg/nvml"
 )
 
 var ClientId string = "1"
@@ -27,8 +30,19 @@ type relocaliseInfo struct {
 	Scene2IP   string `json:"scene2ip"`
 }
 
+type ResourceInfo struct {
+	GPUMemoryFree uint64    `json:"gpumemoryfree"`
+	MemoryFree    uint64    `json:"memoryfree"`
+	CpuUsage      []float64 `json:"cpuusage"`
+}
+
 func init() {
 	RenderFinish = make(chan string)
 	RelocaliseFinish = make(chan string)
 	CUDA_DEVICE = os.Getenv("CUDA_DEVICE")
+
+	ret := nvml.Init()
+	if ret != nvml.SUCCESS {
+		log.Fatalf("Unable to initialize NVML: %v", nvml.ErrorString(ret))
+	}
 }

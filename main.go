@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	"github.com/915604903T/ModelController/handlers"
-	"github.com/915604903T/ModelController/helper"
 
 	"github.com/NVIDIA/go-nvml/pkg/nvml"
 
@@ -27,7 +26,7 @@ func main() {
 	go handlers.DealSignal()
 
 	// start send resource info to center server
-	go helper.SendResourceInfo()
+	go handlers.SendResourceInfo()
 
 	// close nvml and two channel
 	defer func() {

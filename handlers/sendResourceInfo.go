@@ -1,4 +1,4 @@
-package helper
+package handlers
 
 import (
 	"bytes"
@@ -9,18 +9,17 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/915604903T/ModelController/handlers"
 	"github.com/NVIDIA/go-nvml/pkg/nvml"
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/mem"
 )
 
-func sendResourceInfo() {
+func SendResourceInfo() {
 	for {
 		resourceInfo := ResourceInfo{}
 
 		// get gpu info
-		cudaDevice, _ := strconv.Atoi(handlers.CUDA_DEVICE)
+		cudaDevice, _ := strconv.Atoi(CUDA_DEVICE)
 		device, ret := nvml.DeviceGetHandleByIndex(cudaDevice)
 		if ret != nvml.SUCCESS {
 			log.Fatalf("Unable to get device index %d: %v", cudaDevice, nvml.ErrorString(ret))
@@ -51,7 +50,7 @@ func sendResourceInfo() {
 			panic(err)
 		}
 		buf := bytes.NewBuffer(resourceInfoStr)
-		url := handlers.CenterServerAddr + "/sys/client/" + handlers.ClientId
+		url := CenterServerAddr + "/sys/client/" + ClientId
 		request, err := http.NewRequest("GET", url, buf)
 		if err != nil {
 			panic(err)
