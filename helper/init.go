@@ -7,9 +7,9 @@ import (
 )
 
 type ResourceInfo struct {
-	GPUMemoryFree uint64  `json:"gpumemoryfree"`
-	MemoryFree    uint64  `json:"memoryfree"`
-	CpuUsage      float64 `json:"cpuusage"`
+	GPUMemoryFree uint64    `json:"gpumemoryfree"`
+	MemoryFree    uint64    `json:"memoryfree"`
+	CpuUsage      []float64 `json:"cpuusage"`
 }
 
 func init() {
