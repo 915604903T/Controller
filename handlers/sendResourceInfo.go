@@ -42,13 +42,14 @@ func SendResourceInfo() {
 		if err != nil {
 			panic(err)
 		}
-		resourceInfo.MemoryFree = memory.Free
+		resourceInfo.MemoryFree = memory.Available
 
 		// send reqeust to center server
 		resourceInfoStr, err := json.Marshal(resourceInfo)
 		if err != nil {
 			panic(err)
 		}
+		log.Println("this is resourceInfo: ", resourceInfoStr)
 		buf := bytes.NewBuffer(resourceInfoStr)
 		url := CenterServerAddr + "/sys/client/" + ClientId
 		request, err := http.NewRequest("GET", url, buf)
