@@ -14,7 +14,7 @@ import (
 )
 
 func dealRenderFinish(sceneName string) {
-	url := centerServerAddr + "/sys/model/" + sceneName
+	url := CenterServerAddr + "/sys/model/" + sceneName
 	buf := bytes.NewBuffer([]byte("OK"))
 	request, err := http.NewRequest("GET", url, buf)
 	if err != nil {
@@ -91,11 +91,11 @@ func dealRelocaliseFinish(sceneName string) {
 		if err != nil {
 			panic(err)
 		}
-		buf = bytes.NewBuffer([]byte(globalposeStr))
+		buf = bytes.NewBuffer(globalposeStr)
 	} else {
 		buf = bytes.NewBuffer([]byte(scene1 + " " + scene2 + " " + "failed"))
 	}
-	url := centerServerAddr + "/sys/relocalise"
+	url := CenterServerAddr + "/sys/relocalise"
 	request, err := http.NewRequest("GET", url, buf)
 	if err != nil {
 		panic(err)
@@ -116,9 +116,9 @@ func dealRelocaliseFinish(sceneName string) {
 func DealSignal() {
 	for {
 		select {
-		case sceneName := <-renderFinish:
+		case sceneName := <-RenderFinish:
 			dealRenderFinish(sceneName)
-		case sceneName := <-relocaliseFinish:
+		case sceneName := <-RelocaliseFinish:
 			dealRelocaliseFinish(sceneName)
 		}
 	}

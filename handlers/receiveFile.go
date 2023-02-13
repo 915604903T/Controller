@@ -19,7 +19,7 @@ func runRender(sceneName string) {
 		"-f", "collaborative_config.ini",
 		"--name", sceneName,
 		"-s", sceneName, "-t", "Disk")
-	cmd.Env = append(cmd.Env, "CUDA_VISIBLE_DEVICES=2")
+	cmd.Env = append(cmd.Env, "CUDA_VISIBLE_DEVICES="+CUDA_DEVICE)
 	fmt.Println("cmd args: ", cmd.Args)
 
 	stdout, err := cmd.StdoutPipe()

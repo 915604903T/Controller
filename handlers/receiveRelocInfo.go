@@ -92,7 +92,7 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 		"--scene2", scene2,
 		"-s", scene1, "-t", "Disk",
 		"-s", scene2, "-t", "Disk")
-	cmd.Env = append(cmd.Env, "CUDA_VISIBLE_DEVICES=2")
+	cmd.Env = append(cmd.Env, "CUDA_VISIBLE_DEVICES="+CUDA_DEVICE)
 	fmt.Println("relocalise cmd args: ", cmd.Args)
 
 	stdout, err := cmd.StdoutPipe()

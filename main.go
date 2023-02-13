@@ -8,6 +8,9 @@ import (
 	"strconv"
 
 	"github.com/915604903T/ModelController/handlers"
+	"github.com/915604903T/ModelController/helper"
+
+	"github.com/NVIDIA/go-nvml/pkg/nvml"
 
 	"github.com/gorilla/mux"
 )
@@ -22,6 +25,19 @@ func main() {
 
 	// start server but not block
 	go handlers.DealSignal()
+
+	// start send resource info to center server
+	go helper.SendResourceInfo()
+
+	// close nvml and two channel
+	defer func() {
+		ret := nvml.Shutdown()
+		if ret != nvml.SUCCESS {
+			log.Fatalf("Unable to shutdown NVML: %v", nvml.ErrorString(ret))
+		}
+	}()
+	defer close(handlers.RenderFinish)
+	defer close(handlers.RelocaliseFinish)
 
 	// regard tcp port as env viarable
 	tcpPort, _ := strconv.Atoi(os.Getenv("PORT"))
