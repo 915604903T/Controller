@@ -41,7 +41,7 @@ func runRender(sceneName string) {
 	if err = cmd.Wait(); err != nil {
 		panic(err)
 	}
-	renderFinish <- sceneName
+	RenderFinish <- sceneName
 }
 
 func MakeReceiveFileHandler() http.HandlerFunc {

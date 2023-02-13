@@ -114,7 +114,7 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 	if err = cmd.Wait(); err != nil {
 		panic(err)
 	}
-	relocaliseFinish <- scene1 + " " + scene2
+	RelocaliseFinish <- scene1 + " " + scene2
 }
 func MakeReceiveRelocInfoHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
