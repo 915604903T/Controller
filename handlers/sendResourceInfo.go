@@ -49,7 +49,7 @@ func SendResourceInfo() {
 		if err != nil {
 			panic(err)
 		}
-		log.Println("this is resourceInfo: ", resourceInfoStr)
+		log.Println("this is resourceInfo: ", string(resourceInfoStr))
 		buf := bytes.NewBuffer(resourceInfoStr)
 		url := CenterServerAddr + "/sys/client/" + ClientId
 		request, err := http.NewRequest("GET", url, buf)
@@ -58,7 +58,8 @@ func SendResourceInfo() {
 		}
 		resp, err := http.DefaultClient.Do(request)
 		if err != nil {
-			panic(err)
+			// panic(err)
+			log.Fatal("send request ", err)
 		}
 		defer resp.Body.Close()
 		if resp.StatusCode != http.StatusOK {
