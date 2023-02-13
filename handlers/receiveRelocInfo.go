@@ -81,6 +81,10 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 		io.Copy(scene2ZipFile, resp.Body)
 
 		unzipFile(scene2)
+		err = os.Remove(scene2 + ".zip")
+		if err != nil {
+			panic(err)
+		}
 	}
 	cmd := exec.Command("spaintgui-relocalise",
 		"-f", "collaborative_config.ini",
