@@ -1,5 +1,11 @@
 package handlers
 
+import (
+	"log"
+
+	"github.com/NVIDIA/go-nvml/pkg/nvml"
+)
+
 var centerServerAddr string = "http://127.0.0.1:23333"
 var renderFinish chan string
 var relocaliseFinish chan string //two scene
@@ -23,4 +29,8 @@ type relocaliseInfo struct {
 func init() {
 	renderFinish = make(chan string)
 	relocaliseFinish = make(chan string)
+	ret := nvml.Init()
+	if ret != nvml.SUCCESS {
+		log.Fatalf("Unable to initialize NVML: %v", nvml.ErrorString(ret))
+	}
 }
