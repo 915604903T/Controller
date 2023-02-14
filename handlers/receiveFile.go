@@ -15,6 +15,8 @@ import (
 
 func runRender(sceneName string) {
 	// save scene files in the file with the same name
+	copyLock.RLock()
+
 	cmd := exec.Command("spaintgui-processVoxel",
 		"-f", "collaborative_config.ini",
 		"--name", sceneName,
@@ -41,6 +43,8 @@ func runRender(sceneName string) {
 	if err = cmd.Wait(); err != nil {
 		log.Println("exec spaintgui-processVoxel error: ", err)
 	}
+
+	copyLock.RUnlock()
 	RenderFinish <- sceneName
 }
 
@@ -59,6 +63,7 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		copyLock.Lock()
 		for {
 			part, err := reader.NextPart()
 			if err == io.EOF {
@@ -75,6 +80,7 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 				dst.Close()
 			}
 		}
+		copyLock.Unlock()
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("save file success!"))
 		go runRender(sceneName)

@@ -3,6 +3,7 @@ package handlers
 import (
 	"log"
 	"os"
+	"sync"
 
 	"github.com/NVIDIA/go-nvml/pkg/nvml"
 )
@@ -13,6 +14,8 @@ var CenterServerAddr string = "http://127.0.0.1:23333"
 
 var RenderFinish chan string
 var RelocaliseFinish chan string //two scene
+
+var copyLock sync.RWMutex
 
 type pose [4][2]float64
 
