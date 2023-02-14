@@ -21,7 +21,7 @@ func unzipFile(archiveName string) {
 		return
 	}
 	defer archive.Close()
-	copyLock.Lock()
+	log.Println("in unzip before copyLock\n")
 	for _, f := range archive.File {
 		filePath := f.Name
 		log.Println("[receiveRelocInfo]: this is filePath: ", filePath)
@@ -41,14 +41,15 @@ func unzipFile(archiveName string) {
 		if err != nil {
 			panic(err)
 		}
+		copyLock.Lock()
 		if _, err := io.Copy(dstFile, fileInArchive); err != nil {
 			log.Println("io copy error: ", err)
 			panic(err)
 		}
+		copyLock.Unlock()
 		dstFile.Close()
 		fileInArchive.Close()
 	}
-	copyLock.Unlock()
 }
 
 func getFileAndRelocalise(relocInfo relocaliseInfo) {

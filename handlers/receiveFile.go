@@ -63,7 +63,6 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		copyLock.Lock()
 		for {
 			part, err := reader.NextPart()
 			if err == io.EOF {
@@ -80,7 +79,6 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 				dst.Close()
 			}
 		}
-		copyLock.Unlock()
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("save file success!"))
 		go runRender(sceneName)

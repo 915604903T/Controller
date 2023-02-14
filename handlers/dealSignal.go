@@ -119,11 +119,11 @@ func DealSignal() {
 		case sceneName := <-RenderFinish:
 			copyLock.RLock()
 			dealRenderFinish(sceneName)
-			copyLock.Unlock()
+			copyLock.RUnlock()
 		case sceneName := <-RelocaliseFinish:
 			copyLock.RLock()
 			dealRelocaliseFinish(sceneName)
-			copyLock.Unlock()
+			copyLock.RUnlock()
 		}
 	}
 }
