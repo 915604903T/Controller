@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -51,6 +52,8 @@ func MakeSendSceneModelHandler() http.HandlerFunc {
 		zipWriter := zip.NewWriter(w)
 		defer zipWriter.Close()
 		archiveFiles := getFileList(sceneName)
+
+		runtime.LockOSThread()
 		for _, fileName := range archiveFiles {
 			log.Println("zip ", fileName)
 			file, err := os.Open(fileName)
@@ -62,14 +65,15 @@ func MakeSendSceneModelHandler() http.HandlerFunc {
 				log.Println("create zip file error: ", err)
 				panic(err)
 			}
-			copyLock.Lock()
+			// copyLock.Lock()
 			_, err = io.Copy(tmpWriter, file)
-			copyLock.Unlock()
+			// copyLock.Unlock()
 			if err != nil {
 				log.Println("write zip file error: ", err)
 				panic(err)
 			}
 			file.Close()
 		}
+		runtime.UnlockOSThread()
 	}
 }

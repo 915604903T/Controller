@@ -15,7 +15,7 @@ import (
 
 func runRender(sceneName string) {
 	// save scene files in the file with the same name
-	copyLock.RLock()
+	// copyLock.RLock()
 
 	cmd := exec.Command("spaintgui-processVoxel",
 		"-f", "collaborative_config.ini",
@@ -44,7 +44,7 @@ func runRender(sceneName string) {
 		log.Println("exec spaintgui-processVoxel error: ", err)
 	}
 
-	copyLock.RUnlock()
+	// copyLock.RUnlock()
 	RenderFinish <- sceneName
 }
 

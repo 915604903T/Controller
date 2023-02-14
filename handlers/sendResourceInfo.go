@@ -16,7 +16,7 @@ import (
 
 func SendResourceInfo() {
 	for {
-		copyLock.RLock()
+		// copyLock.RLock()
 
 		resourceInfo := ResourceInfo{}
 		// get gpu info
@@ -69,7 +69,7 @@ func SendResourceInfo() {
 			return
 		}
 
-		copyLock.RUnlock()
+		// copyLock.RUnlock()
 
 		// every 10 second trigger once
 		time.Sleep(time.Second * 10)

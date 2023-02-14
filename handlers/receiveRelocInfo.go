@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 )
 
 func unzipFile(archiveName string) {
@@ -21,7 +22,7 @@ func unzipFile(archiveName string) {
 		return
 	}
 	defer archive.Close()
-	log.Println("in unzip before copyLock\n")
+
 	for _, f := range archive.File {
 		filePath := f.Name
 		log.Println("[receiveRelocInfo]: this is filePath: ", filePath)
@@ -41,12 +42,12 @@ func unzipFile(archiveName string) {
 		if err != nil {
 			panic(err)
 		}
-		copyLock.Lock()
+		// copyLock.Lock()
 		if _, err := io.Copy(dstFile, fileInArchive); err != nil {
 			log.Println("io copy error: ", err)
 			panic(err)
 		}
-		copyLock.Unlock()
+		// copyLock.Unlock()
 		dstFile.Close()
 		fileInArchive.Close()
 	}
@@ -84,17 +85,19 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 		}
 		defer scene2ZipFile.Close()
 
-		copyLock.Lock()
+		runtime.LockOSThread()
+		// copyLock.Lock()
 		io.Copy(scene2ZipFile, resp.Body)
-		copyLock.Unlock()
-
+		// copyLock.Unlock()
 		unzipFile(scene2)
+		runtime.UnlockOSThread()
+
 		err = os.Remove(scene2 + ".zip")
 		if err != nil {
 			panic(err)
 		}
 	}
-	copyLock.RLock()
+	// copyLock.RLock()
 	cmd := exec.Command("spaintgui-relocalise",
 		"-f", "collaborative_config.ini",
 		"--scene1", scene1,
@@ -123,7 +126,7 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 	if err = cmd.Wait(); err != nil {
 		log.Println("exec spaintgui-relocalise error: ", err)
 	}
-	copyLock.RUnlock()
+	// copyLock.RUnlock()
 	RelocaliseFinish <- scene1 + " " + scene2
 }
 func MakeReceiveRelocInfoHandler() http.HandlerFunc {
