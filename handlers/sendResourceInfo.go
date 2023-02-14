@@ -16,8 +16,9 @@ import (
 
 func SendResourceInfo() {
 	for {
-		resourceInfo := ResourceInfo{}
+		copyLock.RLock()
 
+		resourceInfo := ResourceInfo{}
 		// get gpu info
 		cudaDevice, _ := strconv.Atoi(CUDA_DEVICE)
 		device, ret := nvml.DeviceGetHandleByIndex(cudaDevice)
@@ -67,6 +68,8 @@ func SendResourceInfo() {
 			log.Fatal("receive error from globalpose center: ", resp_body)
 			return
 		}
+
+		copyLock.RUnlock()
 
 		// every 10 second trigger once
 		time.Sleep(time.Second * 10)

@@ -51,6 +51,7 @@ func MakeSendSceneModelHandler() http.HandlerFunc {
 		zipWriter := zip.NewWriter(w)
 		defer zipWriter.Close()
 		archiveFiles := getFileList(sceneName)
+		copyLock.Lock()
 		for _, fileName := range archiveFiles {
 			log.Println("zip ", fileName)
 			file, err := os.Open(fileName)
@@ -59,14 +60,16 @@ func MakeSendSceneModelHandler() http.HandlerFunc {
 			}
 			tmpWriter, err := zipWriter.Create(fileName)
 			if err != nil {
-				log.Println("write zip file error: ", err)
+				log.Println("create zip file error: ", err)
 				panic(err)
 			}
 			_, err = io.Copy(tmpWriter, file)
 			if err != nil {
+				log.Println("write zip file error: ", err)
 				panic(err)
 			}
 			file.Close()
 		}
+		copyLock.Unlock()
 	}
 }
