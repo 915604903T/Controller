@@ -39,7 +39,7 @@ func runRender(sceneName string) {
 		}
 	}
 	if err = cmd.Wait(); err != nil {
-		panic(err)
+		log.Println("exec spaintgui-processVoxel error: ", err)
 	}
 	RenderFinish <- sceneName
 }

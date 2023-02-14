@@ -112,7 +112,7 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 		}
 	}
 	if err = cmd.Wait(); err != nil {
-		panic(err)
+		log.Println("exec spaintgui-relocalise error: ", err)
 	}
 	RelocaliseFinish <- scene1 + " " + scene2
 }
