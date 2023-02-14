@@ -59,6 +59,7 @@ func MakeSendSceneModelHandler() http.HandlerFunc {
 			}
 			tmpWriter, err := zipWriter.Create(fileName)
 			if err != nil {
+				log.Println("write zip file error: ", err)
 				panic(err)
 			}
 			_, err = io.Copy(tmpWriter, file)

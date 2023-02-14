@@ -41,6 +41,7 @@ func unzipFile(archiveName string) {
 			panic(err)
 		}
 		if _, err := io.Copy(dstFile, fileInArchive); err != nil {
+			log.Println("io copy error: ", err)
 			panic(err)
 		}
 		dstFile.Close()
