@@ -64,7 +64,7 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 			if err == io.EOF {
 				break
 			}
-			fmt.Printf("FileName=[%s], FormName=[%s]\n", part.FileName(), part.FormName())
+			// fmt.Printf("FileName=[%s], FormName=[%s]\n", part.FileName(), part.FormName())
 			if part.FileName() == "" { // this is FormData
 				data, _ := ioutil.ReadAll(part)
 				fmt.Printf("FormData=[%s]\n", string(data))
