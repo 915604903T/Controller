@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/915604903T/ModelController/handlers"
 
@@ -39,9 +38,11 @@ func main() {
 	defer close(handlers.RelocaliseFinish)
 
 	// regard tcp port as env viarable
-	tcpPort, _ := strconv.Atoi(os.Getenv("PORT"))
+	tcpPort := os.Getenv("PORT")
+	// tcpPort, _ := strconv.Atoi(os.Getenv("PORT"))
+	handlers.HostAddr = "http://127.0.0.1" + ":" + tcpPort
 	s := &http.Server{
-		Addr:    fmt.Sprintf(":%d", tcpPort),
+		Addr:    fmt.Sprintf(":%s", tcpPort),
 		Handler: router,
 	}
 	log.Println("listen on port: ", tcpPort)
