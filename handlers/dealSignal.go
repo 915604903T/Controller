@@ -15,7 +15,14 @@ import (
 
 func dealRenderFinish(sceneName string) {
 	url := CenterServerAddr + "/sys/model/" + sceneName
-	buf := bytes.NewBuffer([]byte(HostAddr))
+	var buf *bytes.Buffer
+	modelFile := sceneName + "/model"
+	_, err := os.Stat(modelFile)
+	if os.IsNotExist(err) {
+		buf = bytes.NewBuffer([]byte("Failed"))
+	}else {
+		buf = bytes.NewBuffer([]byte(HostAddr))
+	}
 	request, err := http.NewRequest("GET", url, buf)
 	if err != nil {
 		log.Fatal(err)
