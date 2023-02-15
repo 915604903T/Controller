@@ -72,6 +72,6 @@ func SendResourceInfo() {
 		// copyLock.RUnlock()
 
 		// every 10 second trigger once
-		time.Sleep(time.Second * 10)
+		time.Sleep(time.Second * 5)
 	}
 }
