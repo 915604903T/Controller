@@ -48,32 +48,43 @@ func MakeSendSceneModelHandler() http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/zip")
 		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", archieveName))
 
-		// write zip files
-		zipWriter := zip.NewWriter(w)
-		defer zipWriter.Close()
-		archiveFiles := getFileList(sceneName)
+		_, err := os.Stat(archieveName)
+		if os.IsNotExist(err) {
+			// write zip files
+			zipWriter := zip.NewWriter(w)
+			defer zipWriter.Close()
+			archiveFiles := getFileList(sceneName)
 
-		runtime.LockOSThread()
-		for _, fileName := range archiveFiles {
-			log.Println("zip ", fileName)
-			file, err := os.Open(fileName)
+			runtime.LockOSThread()
+			for _, fileName := range archiveFiles {
+				log.Println("zip ", fileName)
+				file, err := os.Open(fileName)
+				if err != nil {
+					panic(err)
+				}
+				tmpWriter, err := zipWriter.Create(fileName)
+				if err != nil {
+					log.Println("create zip file error: ", err)
+					panic(err)
+				}
+				// copyLock.Lock()
+				_, err = io.Copy(tmpWriter, file)
+				// copyLock.Unlock()
+				if err != nil {
+					log.Println("write zip file error: ", err)
+					panic(err)
+				}
+				file.Close()
+			}
+			runtime.UnlockOSThread()
+		} else {
+			zipFile, err := os.Open(archieveName)
 			if err != nil {
+				log.Println("open archive file", archieveName, " error: ", err)
 				panic(err)
 			}
-			tmpWriter, err := zipWriter.Create(fileName)
-			if err != nil {
-				log.Println("create zip file error: ", err)
-				panic(err)
-			}
-			// copyLock.Lock()
-			_, err = io.Copy(tmpWriter, file)
-			// copyLock.Unlock()
-			if err != nil {
-				log.Println("write zip file error: ", err)
-				panic(err)
-			}
-			file.Close()
+			_, err = io.Copy(w, zipFile)
 		}
-		runtime.UnlockOSThread()
+
 	}
 }
