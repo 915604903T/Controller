@@ -127,7 +127,7 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 		log.Println("exec spaintgui-relocalise error: ", err)
 	}
 	// copyLock.RUnlock()
-	RelocaliseFinish <- scene1 + " " + scene2
+	RelocaliseFinish <- relocInfo
 }
 func MakeReceiveRelocInfoHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

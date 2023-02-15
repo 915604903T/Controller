@@ -35,11 +35,10 @@ func dealRenderFinish(sceneName string) {
 	}
 }
 
-func dealRelocaliseFinish(sceneName string) {
-	names := strings.Fields(sceneName)
-	scene1, scene2 := names[0], names[1]
-
+func dealRelocaliseFinish(relocInfo relocaliseInfo) {
+	scene1, scene2 := relocInfo.Scene1Name, relocInfo.Scene2Name
 	poseFileName := "global_poses/" + scene1 + "-" + scene2 + ".txt"
+
 	//if file does not exist
 	isExist := true
 	_, err := os.Stat(poseFileName)
@@ -58,6 +57,7 @@ func dealRelocaliseFinish(sceneName string) {
 		scanner := bufio.NewScanner(poseFile)
 		poses := [2]pose{}
 		scenes := [2]string{}
+		scenesIp := [2]string{}
 		// only 2 lines
 		for i := 0; i < 2; i++ {
 			if !scanner.Scan() {
@@ -80,11 +80,17 @@ func dealRelocaliseFinish(sceneName string) {
 			}
 			poses[i] = tmpPose
 		}
-
+		if scenes[0] == relocInfo.Scene1Name {
+			scenesIp[0], scenesIp[1] = relocInfo.Scene1IP, relocInfo.Scene2IP
+		} else {
+			scenesIp[0], scenesIp[1] = relocInfo.Scene2IP, relocInfo.Scene1IP
+		}
 		globalpose := globalPose{
 			scenes[0],
+			scenesIp[0],
 			poses[0],
 			scenes[1],
+			scenesIp[1],
 			poses[1],
 		}
 		globalposeStr, err := json.Marshal(globalpose)
@@ -120,9 +126,9 @@ func DealSignal() {
 			// copyLock.RLock()
 			dealRenderFinish(sceneName)
 			// copyLock.RUnlock()
-		case sceneName := <-RelocaliseFinish:
+		case relocInfo := <-RelocaliseFinish:
 			// copyLock.RLock()
-			dealRelocaliseFinish(sceneName)
+			dealRelocaliseFinish(relocInfo)
 			// copyLock.RUnlock()
 		}
 	}
