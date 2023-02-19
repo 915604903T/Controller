@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"unicode"
@@ -42,7 +44,7 @@ func dealRenderFinish(sceneName string) {
 	}
 }
 
-func generateGlobalPose(poseFileName string, relocInfo relocaliseInfo) []byte {
+func generateGlobalPose(poseFileName string, relocInfo relocaliseInfo) globalPose {
 	poseFile, err := os.Open(poseFileName)
 	if err != nil {
 		panic(err)
@@ -66,19 +68,51 @@ func generateGlobalPose(poseFileName string, relocInfo relocaliseInfo) []byte {
 		}
 	}
 	pose := NewPoseDq(dqPose)
-	globalpose := globalPose{
+	globalPose := globalPose{
 		relocInfo.Scene1Name,
 		relocInfo.Scene1IP,
 		relocInfo.Scene2Name,
 		relocInfo.Scene2IP,
 		pose,
 	}
-	globalPoseStr, err := json.Marshal(globalpose)
+	return globalPose
+}
+
+func mergeRelocMesh(globalpose globalPose) {
+	// generate pose File and name output file
+	scene1, scene2 := globalpose.Scene1Name, globalpose.Scene2Name
+	namePre := scene1 + "-" + scene2
+	poseFileName := namePre + ".txt"
+	poseM := globalpose.Transform.GetM()
+	writeTmpPoseFile(poseFileName, poseM)
+	mergeFileName := namePre + ".ply"
+
+	// run merge two scene mesh file
+	cmd := exec.Command("python", "mergeMesh.py",
+		"--file1", scene1+".ply",
+		"--file2", scene2+".ply",
+		"--pose", poseFileName,
+		"--output", mergeFileName)
+	fmt.Println("relocalise cmd args: ", cmd.Args)
+	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		log.Println("marshal globalpose err: ", err)
 		panic(err)
 	}
-	return globalPoseStr
+	cmd.Stderr = cmd.Stdout
+	if err = cmd.Start(); err != nil {
+		panic(err)
+	}
+	for {
+		tmp := make([]byte, 1024)
+		_, err := stdout.Read(tmp)
+		fmt.Print(string(tmp))
+		if err != nil {
+			break
+		}
+	}
+	if err = cmd.Wait(); err != nil {
+		log.Println("exec python mergeMesh.py error: ", err)
+	}
 }
 
 func dealRelocaliseFinish(relocInfo relocaliseInfo) {
@@ -96,7 +130,13 @@ func dealRelocaliseFinish(relocInfo relocaliseInfo) {
 	//if file exist
 	if isExist {
 		globalPose := generateGlobalPose(poseFileName, relocInfo)
-		buf = bytes.NewBuffer(globalPose)
+		mergeRelocMesh(globalPose)
+		globalPoseStr, err := json.Marshal(globalPose)
+		if err != nil {
+			log.Println("marshal globalpose err: ", err)
+			panic(err)
+		}
+		buf = bytes.NewBuffer(globalPoseStr)
 	} else {
 		buf = bytes.NewBuffer([]byte(scene1 + " " + scene2 + " " + "failed"))
 	}

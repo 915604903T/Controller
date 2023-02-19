@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 )
 
@@ -34,40 +33,8 @@ func requestAndSaveFile(fileName, clientAddr string) {
 		panic(err)
 	}
 	io.Copy(file, resp.Body)
+}
 
-}
-func writeTmpPoseFile(fileName string, poseM [4][4]float64) {
-	fp, err := os.Create(fileName)
-	defer fp.Close()
-	if err != nil {
-		log.Println("create ", fileName, " err: ", err)
-		panic(err)
-	}
-	for i := 0; i < 4; i++ {
-		for j := 0; j < 4; j++ {
-			strNum := strconv.FormatFloat(poseM[i][j], 'f', -1, 64)
-			_, err := fp.Write([]byte(strNum))
-			if err != nil {
-				log.Println("write ", strNum, " to file ", fileName, " err:", err)
-				panic(err)
-			}
-			if j != 3 {
-				_, err := fp.Write([]byte(" "))
-				if err != nil {
-					log.Println("write to file ", fileName, " err:", err)
-					panic(err)
-				}
-			}
-		}
-		if i != 3 {
-			_, err := fp.Write([]byte("\n"))
-			if err != nil {
-				log.Println("write enter to file ", fileName, " err:", err)
-				panic(err)
-			}
-		}
-	}
-}
 func doMergeMesh(mergeMeshInfo MergeMeshInfo) {
 	// if mesh file does not exist, request file from another client
 	client1, client2 := mergeMeshInfo.Mesh1.Client, mergeMeshInfo.Mesh2.Client
@@ -96,9 +63,10 @@ func doMergeMesh(mergeMeshInfo MergeMeshInfo) {
 
 	// exec merge mesh program
 	cmd := exec.Command("python", "mergeMesh.py",
-		mesh1FileName, mesh2FileName,
-		poseFileName, mergeFileName,
-	)
+		"--file1", mesh1FileName,
+		"--file2", mesh2FileName,
+		"--pose", poseFileName,
+		"--output", mergeFileName)
 	fmt.Println("relocalise cmd args: ", cmd.Args)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
