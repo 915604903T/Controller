@@ -42,12 +42,10 @@ func unzipFile(archiveName string) {
 		if err != nil {
 			panic(err)
 		}
-		// copyLock.Lock()
 		if _, err := io.Copy(dstFile, fileInArchive); err != nil {
 			log.Println("io copy error: ", err)
 			panic(err)
 		}
-		// copyLock.Unlock()
 		dstFile.Close()
 		fileInArchive.Close()
 	}
@@ -86,9 +84,7 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 		defer scene2ZipFile.Close()
 
 		runtime.LockOSThread()
-		// copyLock.Lock()
 		io.Copy(scene2ZipFile, resp.Body)
-		// copyLock.Unlock()
 		unzipFile(scene2)
 		runtime.UnlockOSThread()
 
@@ -97,7 +93,6 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 			panic(err)
 		}
 	}
-	// copyLock.RLock()
 	cmd := exec.Command("spaintgui-relocalise",
 		"-f", "collaborative_config.ini",
 		"--scene1", scene1,
@@ -126,7 +121,6 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 	if err = cmd.Wait(); err != nil {
 		log.Println("exec spaintgui-relocalise error: ", err)
 	}
-	// copyLock.RUnlock()
 	RelocaliseFinish <- relocInfo
 }
 func MakeReceiveRelocInfoHandler() http.HandlerFunc {

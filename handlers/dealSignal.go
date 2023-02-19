@@ -20,7 +20,7 @@ func dealRenderFinish(sceneName string) {
 	_, err := os.Stat(modelFile)
 	if os.IsNotExist(err) {
 		buf = bytes.NewBuffer([]byte("Failed"))
-	}else {
+	} else {
 		buf = bytes.NewBuffer([]byte(HostAddr))
 	}
 	request, err := http.NewRequest("GET", url, buf)
@@ -130,13 +130,9 @@ func DealSignal() {
 	for {
 		select {
 		case sceneName := <-RenderFinish:
-			// copyLock.RLock()
 			dealRenderFinish(sceneName)
-			// copyLock.RUnlock()
 		case relocInfo := <-RelocaliseFinish:
-			// copyLock.RLock()
 			dealRelocaliseFinish(relocInfo)
-			// copyLock.RUnlock()
 		}
 	}
 }
