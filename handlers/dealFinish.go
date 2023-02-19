@@ -86,11 +86,12 @@ func mergeRelocMesh(globalpose globalPose) {
 	poseM := globalpose.Transform.GetM()
 	writeTmpPoseFile(poseFileName, poseM)
 	mergeFileName := namePre + ".ply"
+	mesh1FileName, mesh2FileName := scene1+".ply", scene2+".ply"
 
 	// run merge two scene mesh file
 	cmd := exec.Command("python", "mergeMesh.py",
-		"--file1", scene1+".ply",
-		"--file2", scene2+".ply",
+		"--file1", mesh1FileName,
+		"--file2", mesh2FileName,
 		"--pose", poseFileName,
 		"--output", mergeFileName)
 	fmt.Println("relocalise cmd args: ", cmd.Args)
@@ -112,6 +113,23 @@ func mergeRelocMesh(globalpose globalPose) {
 	}
 	if err = cmd.Wait(); err != nil {
 		log.Println("exec python mergeMesh.py error: ", err)
+	}
+
+	// Remove unnecessary files
+	err = os.Remove(mesh1FileName)
+	if err != nil {
+		log.Println("remove ", mesh1FileName, " err: ", err)
+		panic(err)
+	}
+	err = os.Remove(mesh2FileName)
+	if err != nil {
+		log.Println("remove ", mesh2FileName, " err: ", err)
+		panic(err)
+	}
+	err = os.Remove(poseFileName)
+	if err != nil {
+		log.Println("remove ", poseFileName, " err: ", err)
+		panic(err)
 	}
 }
 
