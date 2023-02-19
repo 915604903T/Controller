@@ -8,8 +8,9 @@ import (
 )
 
 func init() {
-	RenderFinish = make(chan string)
-	RelocaliseFinish = make(chan relocaliseInfo)
+	// RenderFinish = make(chan string)
+	// RelocaliseFinish = make(chan relocaliseInfo)
+	// MergeMeshFinish = make(chan MeshInfo)
 	CUDA_DEVICE = os.Getenv("CUDA_DEVICE")
 
 	ret := nvml.Init()

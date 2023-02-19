@@ -29,11 +29,7 @@ type MeshInfo struct {
 }
 
 type MergeMeshInfo struct {
-	File1Name  string          `json:"file1name"`
-	Scenes1    map[string]bool `json:"scenes1"`
-	File1Ip    string          `json:"file1ip"`
-	File2Name  string          `json:"file2name"`
-	Scenes2    map[string]bool `json:"scenes2"`
-	File2Ip    string          `json:"file2ip"`
-	PoseMatrix [4][4]float64   `json:"posematrix"`
+	Mesh1      MeshInfo      `json:"mesh1"`
+	Mesh2      MeshInfo      `json:"mesh2"`
+	PoseMatrix [4][4]float64 `json:"posematrix"` //scene2 to scene1 transform matrix
 }

@@ -51,48 +51,55 @@ func unzipFile(archiveName string) {
 	}
 }
 
+func requestZipSceneFile(scene, clientAddr string) {
+	// Make request to receive scene zip file
+	url := clientAddr + "/relocalise/scene/" + scene
+	request, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	log.Print("send request to client to request zip file: ", url)
+	resp, err := http.DefaultClient.Do(request)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		resp_body, _ := ioutil.ReadAll(resp.Body)
+		log.Fatal("receive error from relocalise: ", resp_body)
+		return
+	}
+
+	// Copy zip from resp body to zip file and unzip it
+	scene2ZipFile, err := os.Create(scene + ".zip")
+	defer scene2ZipFile.Close()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	runtime.LockOSThread()
+	io.Copy(scene2ZipFile, resp.Body)
+	unzipFile(scene)
+	runtime.UnlockOSThread()
+
+	// Remove redundant file
+	err = os.Remove(scene + ".zip")
+	if err != nil {
+		panic(err)
+	}
+}
 func getFileAndRelocalise(relocInfo relocaliseInfo) {
 	// request for zip file
 	scene1, scene2 := relocInfo.Scene1Name, relocInfo.Scene2Name
 	_, err := os.Stat(scene2)
 	// if scene2 file not exist, request target client to send zip files
 	if os.IsNotExist(err) {
-		targetIp := relocInfo.Scene2IP
-		url := targetIp + "/relocalise/scene/" + scene2
-		request, err := http.NewRequest("GET", url, nil)
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-		log.Print("send request to client to request zip file: ", url)
-		resp, err := http.DefaultClient.Do(request)
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-		defer resp.Body.Close()
-		if resp.StatusCode != http.StatusOK {
-			resp_body, _ := ioutil.ReadAll(resp.Body)
-			log.Fatal("receive error from relocalise: ", resp_body)
-			return
-		}
-		scene2ZipFile, err := os.Create(scene2 + ".zip")
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-		defer scene2ZipFile.Close()
-
-		runtime.LockOSThread()
-		io.Copy(scene2ZipFile, resp.Body)
-		unzipFile(scene2)
-		runtime.UnlockOSThread()
-
-		err = os.Remove(scene2 + ".zip")
-		if err != nil {
-			panic(err)
-		}
+		requestZipSceneFile(scene2, relocInfo.Scene2IP)
 	}
+
+	// run relocalise process
 	cmd := exec.Command("spaintgui-relocalise",
 		"-f", "collaborative_config.ini",
 		"--scene1", scene1,
@@ -101,7 +108,6 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 		"-s", scene2, "-t", "Disk")
 	cmd.Env = append(cmd.Env, "CUDA_VISIBLE_DEVICES="+CUDA_DEVICE)
 	fmt.Println("relocalise cmd args: ", cmd.Args)
-
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		panic(err)
@@ -121,8 +127,12 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 	if err = cmd.Wait(); err != nil {
 		log.Println("exec spaintgui-relocalise error: ", err)
 	}
-	RelocaliseFinish <- relocInfo
+
+	// send finish signal to RelocaliseFinish
+	// RelocaliseFinish <- relocInfo
+	dealRelocaliseFinish(relocInfo)
 }
+
 func MakeReceiveRelocInfoHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Print("receive request from server for relocalise")

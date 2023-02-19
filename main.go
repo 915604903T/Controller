@@ -20,9 +20,11 @@ func main() {
 	router.HandleFunc("/render/scene/{name}", handlers.MakeReceiveFileHandler())
 	router.HandleFunc("/relocalise/info", handlers.MakeReceiveRelocInfoHandler())
 	router.HandleFunc("/relocalise/scene/{name}", handlers.MakeSendSceneModelHandler())
+	router.HandleFunc("/mesh", handlers.MakeMergeMeshHandler())
+	router.HandleFunc("/filemesh/{name}", handlers.MakeSendMeshHandler())
 
 	// start server but not block
-	go handlers.DealSignal()
+	// go handlers.DealSignal()
 
 	// start send resource info to center server
 	go handlers.SendResourceInfo()
@@ -34,8 +36,8 @@ func main() {
 			log.Fatalf("Unable to shutdown NVML: %v", nvml.ErrorString(ret))
 		}
 	}()
-	defer close(handlers.RenderFinish)
-	defer close(handlers.RelocaliseFinish)
+	// defer close(handlers.RenderFinish)
+	// defer close(handlers.RelocaliseFinish)
 
 	// regard tcp port as env viarable
 	tcpPort := os.Getenv("PORT")

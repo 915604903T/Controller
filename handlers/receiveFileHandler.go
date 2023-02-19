@@ -42,7 +42,8 @@ func runRender(sceneName string) {
 		log.Println("exec spaintgui-processVoxel error: ", err)
 	}
 
-	RenderFinish <- sceneName
+	// RenderFinish <- sceneName
+	dealRenderFinish(sceneName)
 }
 
 func MakeReceiveFileHandler() http.HandlerFunc {
@@ -72,8 +73,8 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 			} else { // This is FileData
 				//Filename not contains the directory
 				dst, _ := os.Create(filepath.Join(sceneName, part.FileName()))
+				defer dst.Close()
 				io.Copy(dst, part)
-				dst.Close()
 			}
 		}
 		w.WriteHeader(http.StatusOK)
