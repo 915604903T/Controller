@@ -94,6 +94,7 @@ func mergeRelocMesh(globalpose globalPose) {
 		"--output", mergeFileName)
 	fmt.Println("relocalise cmd args: ", cmd.Args)
 	stdout, err := cmd.StdoutPipe()
+	defer stdout.Close()
 	if err != nil {
 		panic(err)
 	}
