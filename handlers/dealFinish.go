@@ -54,6 +54,7 @@ func generateGlobalPose(poseFileName string, relocInfo relocaliseInfo) globalPos
 	scanner := bufio.NewScanner(poseFile)
 	dqPose := [2][4]float64{}
 	// 2 lines totally, only read the first line, the second line is world scene
+	scanner.Scan()
 	line := scanner.Text()
 	dqPoseStr := strings.Fields(line)[1]
 	poseStrs := strings.Split(dqPoseStr, ",")
