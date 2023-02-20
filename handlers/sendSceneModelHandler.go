@@ -54,10 +54,10 @@ func MakeSendSceneModelHandler() http.HandlerFunc {
 			zipWriter := zip.NewWriter(w)
 			defer zipWriter.Close()
 			archiveFiles := getFileList(sceneName)
-
+			log.Println("[MakeSendSceneModelHandler] create ", archieveName)
 			runtime.LockOSThread()
 			for _, fileName := range archiveFiles {
-				log.Println("zip ", fileName)
+				// log.Println("zip ", fileName)
 				file, err := os.Open(fileName)
 				if err != nil {
 					panic(err)
