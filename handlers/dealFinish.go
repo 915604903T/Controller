@@ -82,9 +82,7 @@ func mergeRelocMesh(globalpose globalPose) {
 	// generate pose File and name output file
 	scene1, scene2 := globalpose.Scene1Name, globalpose.Scene2Name
 	namePre := scene1 + "-" + scene2
-	poseFileName := namePre + ".txt"
-	poseM := globalpose.Transform.GetM()
-	writeTmpPoseFile(poseFileName, poseM)
+	poseFileName := "worldPose.txt"
 	mergeFileName := namePre + ".ply"
 	mesh1FileName, mesh2FileName := scene1+".ply", scene2+".ply"
 
