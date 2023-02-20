@@ -73,7 +73,8 @@ func requestZipSceneFile(scene, clientAddr string) {
 	}
 
 	// Copy zip from resp body to zip file and unzip it
-	scene2ZipFile, err := os.Create(scene + ".zip")
+	archiveName := scene + ".zip"
+	scene2ZipFile, err := os.Create(archiveName)
 	defer scene2ZipFile.Close()
 	if err != nil {
 		log.Fatal(err)
@@ -85,10 +86,16 @@ func requestZipSceneFile(scene, clientAddr string) {
 	runtime.UnlockOSThread()
 
 	// Remove redundant file
-	err = os.Remove(scene + ".zip")
-	if err != nil {
-		panic(err)
+	_, err = os.Stat(archiveName)
+	if os.IsNotExist(err) {
+		return
+	} else {
+		err = os.Remove(archiveName)
+		if err != nil {
+			panic(err)
+		}
 	}
+
 }
 func getFileAndRelocalise(relocInfo relocaliseInfo) {
 	// request for zip file
@@ -148,7 +155,7 @@ func MakeReceiveRelocInfoHandler() http.HandlerFunc {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		log.Print("Receive relocalise info: ", relocInfo.Scene1Name, relocInfo.Scene2Name)
+		log.Println("Receive relocalise info: ", relocInfo.Scene1Name, relocInfo.Scene2Name)
 		w.WriteHeader(http.StatusOK)
 		// run relocalise
 		go getFileAndRelocalise(relocInfo)
