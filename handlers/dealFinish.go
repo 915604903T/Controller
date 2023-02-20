@@ -126,11 +126,6 @@ func mergeRelocMesh(globalpose globalPose) {
 		log.Println("remove ", mesh2FileName, " err: ", err)
 		panic(err)
 	}
-	err = os.Remove(poseFileName)
-	if err != nil {
-		log.Println("remove ", poseFileName, " err: ", err)
-		panic(err)
-	}
 }
 
 func dealRelocaliseFinish(relocInfo relocaliseInfo) {
