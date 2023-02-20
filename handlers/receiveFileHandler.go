@@ -23,6 +23,7 @@ func runRender(sceneName string) {
 	fmt.Println("cmd args: ", cmd.Args)
 
 	stdout, err := cmd.StdoutPipe()
+	defer stdout.Close()
 	if err != nil {
 		panic(err)
 	}
@@ -73,8 +74,8 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 			} else { // This is FileData
 				//Filename not contains the directory
 				dst, _ := os.Create(filepath.Join(sceneName, part.FileName()))
-				defer dst.Close()
 				io.Copy(dst, part)
+				dst.Close()
 			}
 		}
 		w.WriteHeader(http.StatusOK)
