@@ -1,4 +1,3 @@
-from sre_parse import _OpGroupRefExistsType
 import open3d as o3d
 import numpy as np
 import os
@@ -19,10 +18,7 @@ if __name__=='__main__':
     poseFile = open(args.poseFile)
     for i in range(4):
         line = poseFile.readline()
-        nums = line.split(" ")
-        for j in range(len(nums)):
-            pose[i][j] = float(nums[j])
-            print("type: ", type(float(nums[j])), " ", type(pose[i][j]))
+        pose[i] = np.fromstring(line, dtype='float64', sep=' ')
     pc1 = o3d.io.read_point_cloud(args.file1)
     pc2 = o3d.io.read_point_cloud(args.file2)
     pc2.transform(pose)
@@ -30,6 +26,6 @@ if __name__=='__main__':
     pc = pc.voxel_down_sample(voxel_size=0.00001)
     pc.estimate_normals()
     o3d.io.write_point_cloud(args.outFile, pc)
-    print("success merge ", args.file1, " ", args.file2, " to ", args.outFile)
+    print("success merge", args.file1, args.file2, "to", args.outFile)
 
 
