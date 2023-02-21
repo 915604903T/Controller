@@ -27,5 +27,8 @@ if __name__=='__main__':
     pc.estimate_normals()
     o3d.io.write_point_cloud(args.outFile, pc)
     print("success merge", args.file1, args.file2, "to", args.outFile)
+    os.remove(args.file1)
+    os.remove(args.file2)
+    print("remove merged ply files")
 
 
