@@ -115,6 +115,8 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 		"-s", scene2, "-t", "Disk",
 		"--saveMeshOnExit")
 	cmd.Env = append(cmd.Env, "CUDA_VISIBLE_DEVICES="+CUDA_DEVICE)
+	pathEnv := os.Environ()
+	cmd.Env = append(cmd.Env, pathEnv...)
 	fmt.Println("relocalise cmd args: ", cmd.Args)
 	/*
 		stdout, err := cmd.StdoutPipe()
