@@ -16,6 +16,7 @@ import (
 )
 
 func dealRenderFinish(sceneName string) {
+	log.Println("[dealRenderFinish] send render finish to center", sceneName)
 	url := CenterServerAddr + "/sys/model/" + sceneName
 	var buf *bytes.Buffer
 	modelFile := sceneName + "/model"
@@ -80,6 +81,7 @@ func generateGlobalPose(poseFileName string, relocInfo relocaliseInfo) globalPos
 }
 
 func mergeRelocMesh(globalpose globalPose) {
+	log.Println("[mergeRelocMesh] do merge relocalise meshes")
 	// generate pose File and name output file
 	scene1, scene2 := globalpose.Scene1Name, globalpose.Scene2Name
 	namePre := scene1 + "-" + scene2
@@ -129,6 +131,7 @@ func mergeRelocMesh(globalpose globalPose) {
 }
 
 func dealRelocaliseFinish(relocInfo relocaliseInfo) {
+	log.Println("[dealRelocaliseFinish] send relocInfo to center\n", relocInfo)
 	scene1, scene2 := relocInfo.Scene1Name, relocInfo.Scene2Name
 	poseFileName := "global_poses/" + scene1 + "-" + scene2 + ".txt"
 
@@ -172,6 +175,7 @@ func dealRelocaliseFinish(relocInfo relocaliseInfo) {
 }
 
 func dealFailedReloclise() {
+	log.Println("[dealFailedReloclise] send failed run relocalise program info to center")
 	url := CenterServerAddr + "/sys/relocalise"
 	buf := bytes.NewBuffer([]byte("not successfully run"))
 	request, err := http.NewRequest("GET", url, buf)
@@ -192,6 +196,7 @@ func dealFailedReloclise() {
 }
 
 func dealMergeMeshFinish(meshInfo MeshInfo) {
+	log.Println("[dealMergeMeshFinish] send merge mesh info to center\n", meshInfo)
 	meshInfoBytes, err := json.Marshal(meshInfo)
 	if err != nil {
 		log.Println("marshal meshInfo err: ", err)
@@ -216,18 +221,3 @@ func dealMergeMeshFinish(meshInfo MeshInfo) {
 		return
 	}
 }
-
-/*
-func DealSignal() {
-	for {
-		select {
-		case sceneName := <-RenderFinish:
-			dealRenderFinish(sceneName)
-		case relocInfo := <-RelocaliseFinish:
-			dealRelocaliseFinish(relocInfo)
-		case meshInfo := <-MergeMeshFinish:
-			dealMergeMeshFinish(meshInfo)
-		}
-	}
-}
-*/

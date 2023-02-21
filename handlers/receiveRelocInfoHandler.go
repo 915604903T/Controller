@@ -25,7 +25,7 @@ func unzipFile(archiveName string) {
 
 	for _, f := range archive.File {
 		filePath := f.Name
-		log.Println("[receiveRelocInfo]: this is filePath: ", filePath)
+		// log.Println("[receiveRelocInfo]: this is filePath: ", filePath)
 		if f.FileInfo().IsDir() {
 			log.Println("creating directory...")
 			os.MkdirAll(filePath, os.ModePerm)
