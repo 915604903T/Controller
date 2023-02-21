@@ -49,12 +49,13 @@ func doMergeMesh(mergeMeshInfo MergeMeshInfo) {
 	names := []string{}
 	newSceneMap := make(map[string]bool)
 	for name := range mergeMeshInfo.Mesh1.Scenes {
-		names = append(names, name)
 		newSceneMap[name] = true
 	}
 	for name := range mergeMeshInfo.Mesh2.Scenes {
-		names = append(names, name)
 		newSceneMap[name] = true
+	}
+	for name := range newSceneMap {
+		names = append(names, name)
 	}
 	namePre := strings.Join(names, "-")
 	poseFileName := namePre + ".txt"
@@ -90,16 +91,18 @@ func doMergeMesh(mergeMeshInfo MergeMeshInfo) {
 	}
 
 	// Remove unnecessary files
-	err = os.Remove(mesh1FileName)
-	if err != nil {
-		log.Println("remove ", mesh1FileName, " err: ", err)
-		panic(err)
-	}
-	err = os.Remove(mesh2FileName)
-	if err != nil {
-		log.Println("remove ", mesh2FileName, " err: ", err)
-		panic(err)
-	}
+	/*
+		err = os.Remove(mesh1FileName)
+		if err != nil {
+			log.Println("remove ", mesh1FileName, " err: ", err)
+			panic(err)
+		}
+		err = os.Remove(mesh2FileName)
+		if err != nil {
+			log.Println("remove ", mesh2FileName, " err: ", err)
+			panic(err)
+		}
+	*/
 	err = os.Remove(poseFileName)
 	if err != nil {
 		log.Println("remove ", poseFileName, " err: ", err)
