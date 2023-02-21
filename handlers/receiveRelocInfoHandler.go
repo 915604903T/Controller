@@ -135,6 +135,7 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 	}
 	if err = cmd.Wait(); err != nil {
 		log.Println("exec spaintgui-relocalise error: ", err)
+		dealFailedReloclise()
 	}
 
 	// send finish signal to RelocaliseFinish

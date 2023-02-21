@@ -171,6 +171,26 @@ func dealRelocaliseFinish(relocInfo relocaliseInfo) {
 	}
 }
 
+func dealFailedReloclise() {
+	url := CenterServerAddr + "/sys/relocalise"
+	buf := bytes.NewBuffer([]byte("not successfully run"))
+	request, err := http.NewRequest("GET", url, buf)
+	if err != nil {
+		panic(err)
+	}
+	log.Print("Send request to ", url)
+	resp, err := http.DefaultClient.Do(request)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		resp_body, _ := ioutil.ReadAll(resp.Body)
+		log.Fatal("receive error from relocalise info center: ", resp_body)
+		return
+	}
+}
+
 func dealMergeMeshFinish(meshInfo MeshInfo) {
 	meshInfoBytes, err := json.Marshal(meshInfo)
 	if err != nil {
