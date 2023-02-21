@@ -116,23 +116,27 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 		"--saveMeshOnExit")
 	cmd.Env = append(cmd.Env, "CUDA_VISIBLE_DEVICES="+CUDA_DEVICE)
 	fmt.Println("relocalise cmd args: ", cmd.Args)
-	stdout, err := cmd.StdoutPipe()
-	defer stdout.Close()
-	if err != nil {
-		panic(err)
-	}
-	cmd.Stderr = cmd.Stdout
+	/*
+		stdout, err := cmd.StdoutPipe()
+		defer stdout.Close()
+		if err != nil {
+			panic(err)
+		}
+		cmd.Stderr = cmd.Stdout
+	*/
 	if err = cmd.Start(); err != nil {
 		panic(err)
 	}
-	for {
-		tmp := make([]byte, 1024)
-		_, err := stdout.Read(tmp)
-		fmt.Print(string(tmp))
-		if err != nil {
-			break
+	/*
+		for {
+			tmp := make([]byte, 1024)
+			_, err := stdout.Read(tmp)
+			fmt.Print(string(tmp))
+			if err != nil {
+				break
+			}
 		}
-	}
+	*/
 	if err = cmd.Wait(); err != nil {
 		log.Println("exec spaintgui-relocalise error: ", err)
 		dealFailedReloclise()
@@ -162,3 +166,4 @@ func MakeReceiveRelocInfoHandler() http.HandlerFunc {
 		go getFileAndRelocalise(relocInfo)
 	}
 }
+
