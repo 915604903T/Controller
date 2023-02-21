@@ -4,12 +4,10 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 	"strconv"
 	"strings"
 	"unicode"
@@ -80,6 +78,7 @@ func generateGlobalPose(poseFileName string, relocInfo relocaliseInfo) globalPos
 	return globalPose
 }
 
+/*
 func mergeRelocMesh(globalpose globalPose) {
 	log.Println("[mergeRelocMesh] do merge relocalise meshes")
 	// generate pose File and name output file
@@ -117,18 +116,19 @@ func mergeRelocMesh(globalpose globalPose) {
 		log.Println("exec python mergeMesh.py error: ", err)
 	}
 
-	// Remove unnecessary files
-	err = os.Remove(mesh1FileName)
-	if err != nil {
-		log.Println("remove ", mesh1FileName, " err: ", err)
-		panic(err)
-	}
-	err = os.Remove(mesh2FileName)
-	if err != nil {
-		log.Println("remove ", mesh2FileName, " err: ", err)
-		panic(err)
-	}
+	// do not Remove single scene File
+		err = os.Remove(mesh1FileName)
+		if err != nil {
+			log.Println("remove ", mesh1FileName, " err: ", err)
+			panic(err)
+		}
+		err = os.Remove(mesh2FileName)
+		if err != nil {
+			log.Println("remove ", mesh2FileName, " err: ", err)
+			panic(err)
+		}
 }
+*/
 
 func dealRelocaliseFinish(relocInfo relocaliseInfo) {
 	log.Println("[dealRelocaliseFinish] send relocInfo to center\n", relocInfo)
@@ -146,7 +146,7 @@ func dealRelocaliseFinish(relocInfo relocaliseInfo) {
 	//if file exist
 	if isExist {
 		globalPose := generateGlobalPose(poseFileName, relocInfo)
-		mergeRelocMesh(globalPose)
+		// mergeRelocMesh(globalPose)
 		globalPoseStr, err := json.Marshal(globalPose)
 		if err != nil {
 			log.Println("marshal globalpose err: ", err)
