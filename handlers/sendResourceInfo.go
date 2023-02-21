@@ -68,6 +68,6 @@ func SendResourceInfo() {
 		}
 
 		// every 10 second trigger once
-		time.Sleep(time.Second * 5)
+		time.Sleep(time.Second * 1)
 	}
 }
