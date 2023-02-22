@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"sync"
 )
 
 func unzipFile(archiveName string) {
@@ -100,11 +101,26 @@ func requestZipSceneFile(scene, clientAddr string) {
 func getFileAndRelocalise(relocInfo relocaliseInfo) {
 	// request for zip file
 	scene1, scene2 := relocInfo.Scene1Name, relocInfo.Scene2Name
-	_, err := os.Stat(scene2)
+	var lock *sync.Mutex
+	requestFileLock.RLock()
+	l, ok := requestFile[scene2]
+	if ok {
+		lock = l
+	}
+	requestFileLock.RUnlock()
+	if !ok {
+		requestFileLock.Lock()
+		requestFile[scene2] = &sync.Mutex{}
+		lock = requestFile[scene2]
+		requestFileLock.Unlock()
+	}
 	// if scene2 file not exist, request target client to send zip files
+	lock.Lock()
+	_, err := os.Stat(scene2)
 	if os.IsNotExist(err) {
 		requestZipSceneFile(scene2, relocInfo.Scene2IP)
 	}
+	lock.Unlock()
 
 	// run relocalise process
 	cmd := exec.Command("spaintgui-relocalise",
