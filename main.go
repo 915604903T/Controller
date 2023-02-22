@@ -43,6 +43,7 @@ func main() {
 	tcpPort := os.Getenv("PORT")
 	// tcpPort, _ := strconv.Atoi(os.Getenv("PORT"))
 	handlers.HostAddr = "http://127.0.0.1" + ":" + tcpPort
+	handlers.ClientId = os.Getenv("CLIENT")
 	s := &http.Server{
 		Addr:    fmt.Sprintf(":%s", tcpPort),
 		Handler: router,
