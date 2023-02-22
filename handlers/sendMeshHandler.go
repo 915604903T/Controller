@@ -14,7 +14,7 @@ func MakeSendMeshHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		fileName := vars["name"]
-		log.Print("request ply file ", fileName, " file for relocalise")
+		log.Println("[MakeSendMeshHandler] request ply file ", fileName, " file for relocalise")
 		defer r.Body.Close()
 
 		// add pose File and model to archieve file
