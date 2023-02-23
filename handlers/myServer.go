@@ -58,7 +58,7 @@ func (s *GracefulServer) WaitForExitingSignal() {
 	fmt.Println("==========================================")
 
 	fmt.Println("===============Cpu Usage==================")
-	for k, v := range TimeCost {
+	for k, v := range CpuUsage {
 		fmt.Println(k, ": ", v)
 	}
 	fmt.Println("==========================================")
