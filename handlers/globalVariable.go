@@ -16,8 +16,13 @@ var HostAddr string
 var requestFile map[string]*sync.Mutex
 var requestFileLock sync.RWMutex
 
+// measurement
 var TimeCost map[string]time.Duration
 var TimeCostLock sync.RWMutex
+var MemoryCost map[string]float64
+var MemoryCostLock sync.RWMutex
+var CpuUsage map[string]float64
+var CpuUsageLock sync.RWMutex
 
 // var RenderFinish chan string
 // var RelocaliseFinish chan relocaliseInfo //two scene

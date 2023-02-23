@@ -109,7 +109,10 @@ func measureRelocalise(scene1, scene2 string, cmd *exec.Cmd) {
 		log.Println("[measureRelocalise] process", pid, "not exist!!!")
 		return
 	}
-	for ; ; time.Sleep(time.Second) {
+	totalMemory := 0.0
+	totalCpuUsage := 0.0
+	cnt := 0
+	for ; ; time.Sleep(time.Second * 2) {
 		isRunning, err := p.IsRunning()
 		if err != nil {
 			log.Println("[measureRelocalise] process", pid, "is running return error!!!")
@@ -119,10 +122,20 @@ func measureRelocalise(scene1, scene2 string, cmd *exec.Cmd) {
 			break
 		}
 		cpuPercent, _ := p.CPUPercent()
-		log.Println("[measureRelocalise] ", scene1+"-"+scene2, "cpuUsage: ", cpuPercent, "%")
 		memoryInfo, _ := p.MemoryInfo()
-		log.Println("[measureRelocalise] ", scene1+"-"+scene2, "RSS: ", float64(memoryInfo.RSS)/1e6, "MB")
+		totalCpuUsage += cpuPercent
+		totalMemory += float64(memoryInfo.RSS) / 1e6
+		cnt++
+		// log.Println("[measureRender] ", sceneName, "cpuUsage: ", cpuPercent, "%")
+		// log.Println("[measureRender] ", sceneName, "RSS: ", float64(memoryInfo.RSS)/1e6, "MB")
 	}
+	averageMemory := totalMemory / float64(cnt)
+	averageCpu := totalCpuUsage / float64(cnt)
+	index := scene1 + "-" + scene2 + "-Relocalise"
+	pidResourceLock.Lock()
+	MemoryCost[index] = averageMemory
+	CpuUsage[index] = averageCpu
+	pidResourceLock.Unlock()
 }
 
 func getFileAndRelocalise(relocInfo relocaliseInfo) {

@@ -16,6 +16,8 @@ func init() {
 	requestFile = make(map[string]*sync.Mutex)
 
 	TimeCost = make(map[string]time.Duration)
+	MemoryCost = make(map[string]float64)
+	CpuUsage = make(map[string]float64)
 
 	CUDA_DEVICE = os.Getenv("CUDA_DEVICE")
 

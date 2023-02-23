@@ -44,9 +44,24 @@ func (s *GracefulServer) WaitForExitingSignal() {
 	<-waiter
 
 	log.Println("[WaitForExitingSignal] receive shutdown signal")
+
+	fmt.Println("===============Time Cost==================")
 	for k, v := range TimeCost {
-		fmt.Println(k, ": ", v, "ms")
+		fmt.Println(k, ": ", v, "s")
 	}
+	fmt.Println("==========================================")
+
+	fmt.Println("===============Memory Cost==================")
+	for k, v := range MemoryCost {
+		fmt.Println(k, ": ", v, "MB")
+	}
+	fmt.Println("==========================================")
+
+	fmt.Println("===============Cpu Usage==================")
+	for k, v := range TimeCost {
+		fmt.Println(k, ": ", v)
+	}
+	fmt.Println("==========================================")
 
 	ctx := context.Background()
 	err := s.Server.Shutdown(ctx)

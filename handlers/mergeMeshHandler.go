@@ -45,7 +45,10 @@ func measureMerge(namePre string, cmd *exec.Cmd) {
 		log.Println("[measureMerge] process", pid, "not exist!!!")
 		return
 	}
-	for ; ; time.Sleep(time.Second) {
+	totalMemory := 0.0
+	totalCpuUsage := 0.0
+	cnt := 0
+	for ; ; time.Sleep(time.Second * 2) {
 		isRunning, err := p.IsRunning()
 		if err != nil {
 			log.Println("[measureMerge] process", pid, "is running return error!!!")
@@ -55,10 +58,20 @@ func measureMerge(namePre string, cmd *exec.Cmd) {
 			break
 		}
 		cpuPercent, _ := p.CPUPercent()
-		log.Println("[measureMerge] ", namePre, "cpuUsage: ", cpuPercent, "%")
 		memoryInfo, _ := p.MemoryInfo()
-		log.Println("[measureMerge] ", namePre, "RSS: ", float64(memoryInfo.RSS)/1e6, "MB")
+		totalCpuUsage += cpuPercent
+		totalMemory += float64(memoryInfo.RSS) / 1e6
+		cnt++
+		// log.Println("[measureRender] ", sceneName, "cpuUsage: ", cpuPercent, "%")
+		// log.Println("[measureRender] ", sceneName, "RSS: ", float64(memoryInfo.RSS)/1e6, "MB")
 	}
+	averageMemory := totalMemory / float64(cnt)
+	averageCpu := totalCpuUsage / float64(cnt)
+	index := namePre + "-Merge"
+	pidResourceLock.Lock()
+	MemoryCost[index] = averageMemory
+	CpuUsage[index] = averageCpu
+	pidResourceLock.Unlock()
 }
 
 func doMergeMesh(mergeMeshInfo MergeMeshInfo) {
