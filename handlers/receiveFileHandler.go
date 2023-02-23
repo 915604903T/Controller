@@ -13,15 +13,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func runRender(sceneName string) {
-	// save scene files in the file with the same name
-	cmd := exec.Command("spaintgui-processVoxel",
-		"-f", "collaborative_config.ini",
-		"--name", sceneName,
-		"-s", sceneName, "-t", "Disk")
-	cmd.Env = append(cmd.Env, "CUDA_VISIBLE_DEVICES="+CUDA_DEVICE)
-	fmt.Println("cmd args: ", cmd.Args)
-
+func doRender(cmd *exec.Cmd) {
 	stdout, err := cmd.StdoutPipe()
 	defer stdout.Close()
 	if err != nil {
@@ -39,8 +31,25 @@ func runRender(sceneName string) {
 			break
 		}
 	}
-	if err = cmd.Wait(); err != nil {
-		log.Println("exec spaintgui-processVoxel error: ", err)
+}
+func runRender(sceneName string) {
+	// save scene files in the file with the same name
+	cmd := exec.Command("spaintgui-processVoxel",
+		"-f", "collaborative_config.ini",
+		"--name", sceneName,
+		"-s", sceneName, "-t", "Disk")
+	cmd.Env = append(cmd.Env, "CUDA_VISIBLE_DEVICES="+CUDA_DEVICE)
+	fmt.Println("cmd args: ", cmd.Args)
+	// do render until success
+	for {
+		doRender(cmd)
+		err := cmd.Wait()
+		if err != nil {
+			log.Println("exec spaintgui-processVoxel error: ", err)
+			continue
+		} else {
+			break
+		}
 	}
 
 	// RenderFinish <- sceneName
@@ -83,3 +92,4 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 		go runRender(sceneName)
 	}
 }
+

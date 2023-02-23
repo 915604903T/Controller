@@ -4,7 +4,8 @@ import "sync"
 
 var ClientId string = "1"
 var CUDA_DEVICE string
-var CenterServerAddr string = "http://127.0.0.1:23333"
+var CenterServerAddr string = "http://172.24.109.142:23333"
+// var CenterServerAddr string = "http://127.0.0.1:23333"
 var HostAddr string
 
 var requestFile map[string]*sync.Mutex
