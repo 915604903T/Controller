@@ -68,10 +68,10 @@ func measureMerge(namePre string, cmd *exec.Cmd) {
 	averageMemory := totalMemory / float64(cnt)
 	averageCpu := totalCpuUsage / float64(cnt)
 	index := namePre + "-Merge"
-	pidResourceLock.Lock()
+	PidResourceLock.Lock()
 	MemoryCost[index] = averageMemory
 	CpuUsage[index] = averageCpu
-	pidResourceLock.Unlock()
+	PidResourceLock.Unlock()
 }
 
 func doMergeMesh(mergeMeshInfo MergeMeshInfo) {

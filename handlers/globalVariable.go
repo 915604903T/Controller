@@ -20,9 +20,8 @@ var requestFileLock sync.RWMutex
 var TimeCost map[string]time.Duration
 var TimeCostLock sync.RWMutex
 var MemoryCost map[string]float64
-var MemoryCostLock sync.RWMutex
 var CpuUsage map[string]float64
-var CpuUsageLock sync.RWMutex
+var PidResourceLock sync.RWMutex
 
 // var RenderFinish chan string
 // var RelocaliseFinish chan relocaliseInfo //two scene

@@ -132,10 +132,10 @@ func measureRelocalise(scene1, scene2 string, cmd *exec.Cmd) {
 	averageMemory := totalMemory / float64(cnt)
 	averageCpu := totalCpuUsage / float64(cnt)
 	index := scene1 + "-" + scene2 + "-Relocalise"
-	pidResourceLock.Lock()
+	PidResourceLock.Lock()
 	MemoryCost[index] = averageMemory
 	CpuUsage[index] = averageCpu
-	pidResourceLock.Unlock()
+	PidResourceLock.Unlock()
 }
 
 func getFileAndRelocalise(relocInfo relocaliseInfo) {

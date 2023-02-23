@@ -66,10 +66,10 @@ func measureRender(sceneName string, cmd *exec.Cmd) {
 	averageMemory := totalMemory / float64(cnt)
 	averageCpu := totalCpuUsage / float64(cnt)
 	index := sceneName + "-Render"
-	pidResourceLock.Lock()
+	PidResourceLock.Lock()
 	MemoryCost[index] = averageMemory
 	CpuUsage[index] = averageCpu
-	pidResourceLock.Unlock()
+	PidResourceLock.Unlock()
 }
 
 func runRender(sceneName string) {
