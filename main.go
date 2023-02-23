@@ -42,7 +42,7 @@ func main() {
 	// regard tcp port as env viarable
 	tcpPort := os.Getenv("PORT")
 	// tcpPort, _ := strconv.Atoi(os.Getenv("PORT"))
-	handlers.HostAddr = "http://127.0.0.1" + ":" + tcpPort
+	handlers.HostAddr = "http://210.28.134.72" + ":" + tcpPort
 	handlers.ClientId = os.Getenv("CLIENT")
 	s := &http.Server{
 		Addr:    fmt.Sprintf(":%s", tcpPort),
