@@ -23,7 +23,8 @@ func doRender(sceneName string, cmd *exec.Cmd) {
 	}
 	cmd.Stderr = cmd.Stdout*/
 	if err := cmd.Start(); err != nil {
-		panic(err)
+		log.Println("[doRender] start render err:", err)
+		return
 	}
 	go measureRender(sceneName, cmd)
 	/*for {
@@ -84,7 +85,7 @@ func runRender(sceneName string) {
 	fmt.Println("cmd args: ", cmd.Args)
 	// do render until success
 	start := time.Now()
-	for {
+	for ; ; time.Sleep(time.Second * 2) {
 		doRender(sceneName, cmd)
 		err := cmd.Wait()
 		if err != nil {
