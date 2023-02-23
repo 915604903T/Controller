@@ -36,23 +36,31 @@ func main() {
 			log.Fatalf("Unable to shutdown NVML: %v", nvml.ErrorString(ret))
 		}
 	}()
-	defer func() {
-		for k, v := range handlers.TimeCost {
-			fmt.Println(k, ": ", v, "ms")
-		}
-	}()
-	// defer close(handlers.RenderFinish)
-	// defer close(handlers.RelocaliseFinish)
 
 	// regard tcp port as env viarable
 	tcpPort := os.Getenv("PORT")
 	// tcpPort, _ := strconv.Atoi(os.Getenv("PORT"))
 	handlers.HostAddr = "http://210.28.134.72" + ":" + tcpPort
 	handlers.ClientId = os.Getenv("CLIENT")
-	s := &http.Server{
+
+	s := handlers.GracefulServer{
+		Server: &http.Server{
+			Addr:    fmt.Sprintf(":%s", tcpPort),
+			Handler: router,
+		},
+	}
+	go s.WaitForExitingSignal()
+	log.Println("listening on port", tcpPort)
+	err := s.ListenAndServe()
+	if err != nil {
+		err = fmt.Errorf("unexpected error from ListenAndServe: %w", err)
+	}
+	log.Println("main goroutine exited.")
+
+	/*s := &http.Server{
 		Addr:    fmt.Sprintf(":%s", tcpPort),
 		Handler: router,
 	}
 	log.Println("listen on port: ", tcpPort)
-	log.Fatal(s.ListenAndServe())
+	log.Fatal(s.ListenAndServe())*/
 }
