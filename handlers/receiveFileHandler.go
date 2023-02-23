@@ -16,17 +16,17 @@ import (
 )
 
 func doRender(sceneName string, cmd *exec.Cmd) {
-	stdout, err := cmd.StdoutPipe()
+	/*stdout, err := cmd.StdoutPipe()
 	defer stdout.Close()
 	if err != nil {
 		panic(err)
 	}
-	cmd.Stderr = cmd.Stdout
-	if err = cmd.Start(); err != nil {
+	cmd.Stderr = cmd.Stdout*/
+	if err := cmd.Start(); err != nil {
 		panic(err)
 	}
 	go measureRender(sceneName, cmd)
-	for {
+	/*for {
 		tmp := make([]byte, 1024)
 		_, err := stdout.Read(tmp)
 		fmt.Print(string(tmp))
@@ -34,6 +34,7 @@ func doRender(sceneName string, cmd *exec.Cmd) {
 			break
 		}
 	}
+	*/
 }
 
 func measureRender(sceneName string, cmd *exec.Cmd) {
