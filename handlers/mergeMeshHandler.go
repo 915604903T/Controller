@@ -116,14 +116,14 @@ func doMergeMesh(mergeMeshInfo MergeMeshInfo) {
 	}
 	if err = cmd.Wait(); err != nil {
 		d2 := time.Since(start)
-		log.Println("[getFileAndRelocalise] merge mesh unsuccessfully", namePre, "cost", d2, "ms!!!!!!!!!!!!!!!!!!!!!")
+		log.Println("[getFileAndRelocalise] merge mesh unsuccessfully", namePre, "cost", d2, "s!!!!!!!!!!!!!!!!!!!!!")
 		TimeCostLock.Lock()
 		TimeCost[namePre+"-MergeMesh"] = d2
 		TimeCostLock.Unlock()
 		log.Println("exec merge mesh error: ", err)
 	} else {
 		d2 := time.Since(start)
-		log.Println("[getFileAndRelocalise] merge mesh", namePre, "cost", d2, "ms!!!!!!!!!!!!!!!!!!!!!")
+		log.Println("[getFileAndRelocalise] merge mesh", namePre, "cost", d2, "s!!!!!!!!!!!!!!!!!!!!!")
 		TimeCostLock.Lock()
 		TimeCost[namePre+"-MergeMesh"] = d2
 		TimeCostLock.Unlock()

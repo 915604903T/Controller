@@ -154,7 +154,7 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 	lock.Unlock()
 
 	if os.IsNotExist(err) {
-		log.Println("[getFileAndRelocalise] Request zip file", scene2, "cost", d1, "ms!!!!!!!!!!!!!!!!!!!!!")
+		log.Println("[getFileAndRelocalise] Request zip file", scene2, "cost", d1, "s!!!!!!!!!!!!!!!!!!!!!")
 		TimeCostLock.Lock()
 		TimeCost[scene2+"-RequestZipFile"] = d1
 		TimeCostLock.Unlock()
@@ -199,7 +199,7 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 		log.Println("exec spaintgui-relocalise error: ", err)
 
 		d2 := time.Since(start)
-		log.Println("[getFileAndRelocalise] run relocalise unsuccessfully", scene1, scene2, "cost", d2, "ms!!!!!!!!!!!!!!!!!!!!!")
+		log.Println("[getFileAndRelocalise] run relocalise unsuccessfully", scene1, scene2, "cost", d2, "s!!!!!!!!!!!!!!!!!!!!!")
 		TimeCostLock.Lock()
 		TimeCost[scene1+"-"+scene2+"-ReocaliseUnsuccessful"] = d2
 		TimeCostLock.Unlock()
@@ -211,7 +211,7 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 	// send finish signal to RelocaliseFinish
 	// RelocaliseFinish <- relocInfo
 	d2 := time.Since(start)
-	log.Println("[getFileAndRelocalise] run relocalise", scene1, scene2, "cost", d2, "ms!!!!!!!!!!!!!!!!!!!!!")
+	log.Println("[getFileAndRelocalise] run relocalise", scene1, scene2, "cost", d2, "s!!!!!!!!!!!!!!!!!!!!!")
 	TimeCostLock.Lock()
 	TimeCost[scene1+"-"+scene2+"-Reocalise"] = d2
 	TimeCostLock.Unlock()

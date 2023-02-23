@@ -82,7 +82,7 @@ func runRender(sceneName string) {
 	}
 
 	duration := time.Since(start)
-	log.Println("[runRender] Render", sceneName, "cost", duration, "ms!!!!!!!!!!!!!!!!!!!!!")
+	log.Println("[runRender] Render", sceneName, "cost", duration, "s!!!!!!!!!!!!!!!!!!!!!")
 	TimeCostLock.Lock()
 	TimeCost[sceneName+"-Render"] = duration
 	TimeCostLock.Unlock()
@@ -127,7 +127,7 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 		w.Write([]byte("save file success!"))
 		duration := time.Since(start)
 
-		log.Println("[MakeReceiveFileHandler] Receive", sceneName, "cost", duration, "ms!!!!!!!!!!!!!!!!!!!!!")
+		log.Println("[MakeReceiveFileHandler] Receive", sceneName, "cost", duration, "s!!!!!!!!!!!!!!!!!!!!!")
 		TimeCostLock.Lock()
 		TimeCost[sceneName+"-ReceiveUserFile"] = duration
 		TimeCostLock.Unlock()
