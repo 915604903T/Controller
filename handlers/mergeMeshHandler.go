@@ -11,6 +11,8 @@ import (
 	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/shirou/gopsutil/process"
 )
 
 func requestAndSaveFile(fileName, clientAddr string) {
@@ -34,6 +36,29 @@ func requestAndSaveFile(fileName, clientAddr string) {
 		panic(err)
 	}
 	io.Copy(file, resp.Body)
+}
+
+func measureMerge(namePre string, cmd *exec.Cmd) {
+	pid := cmd.Process.Pid
+	p, err := process.NewProcess(int32(pid))
+	if err != nil {
+		log.Println("[measureMerge] process", pid, "not exist!!!")
+		return
+	}
+	for ; ; time.Sleep(time.Second) {
+		isRunning, err := p.IsRunning()
+		if err != nil {
+			log.Println("[measureMerge] process", pid, "is running return error!!!")
+			continue
+		}
+		if !isRunning {
+			break
+		}
+		cpuPercent, _ := p.CPUPercent()
+		log.Println("[measureMerge] ", namePre, "cpuUsage: ", cpuPercent, "%")
+		memoryInfo, _ := p.MemoryInfo()
+		log.Println("[measureMerge] ", namePre, "RSS: ", float64(memoryInfo.RSS)/1e6, "MB")
+	}
 }
 
 func doMergeMesh(mergeMeshInfo MergeMeshInfo) {
@@ -80,6 +105,7 @@ func doMergeMesh(mergeMeshInfo MergeMeshInfo) {
 	if err = cmd.Start(); err != nil {
 		panic(err)
 	}
+	go measureMerge(namePre, cmd)
 	for {
 		tmp := make([]byte, 1024)
 		_, err := stdout.Read(tmp)

@@ -12,9 +12,10 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/shirou/gopsutil/process"
 )
 
-func doRender(cmd *exec.Cmd) {
+func doRender(sceneName string, cmd *exec.Cmd) {
 	stdout, err := cmd.StdoutPipe()
 	defer stdout.Close()
 	if err != nil {
@@ -24,6 +25,7 @@ func doRender(cmd *exec.Cmd) {
 	if err = cmd.Start(); err != nil {
 		panic(err)
 	}
+	go measureRender(sceneName, cmd)
 	for {
 		tmp := make([]byte, 1024)
 		_, err := stdout.Read(tmp)
@@ -33,6 +35,30 @@ func doRender(cmd *exec.Cmd) {
 		}
 	}
 }
+
+func measureRender(sceneName string, cmd *exec.Cmd) {
+	pid := cmd.Process.Pid
+	p, err := process.NewProcess(int32(pid))
+	if err != nil {
+		log.Println("[measureRender] process", pid, "not exist!!!")
+		return
+	}
+	for ; ; time.Sleep(time.Second) {
+		isRunning, err := p.IsRunning()
+		if err != nil {
+			log.Println("[measureRender] process", pid, "is running return error!!!")
+			continue
+		}
+		if !isRunning {
+			break
+		}
+		cpuPercent, _ := p.CPUPercent()
+		log.Println("[measureRender] ", sceneName, "cpuUsage: ", cpuPercent, "%")
+		memoryInfo, _ := p.MemoryInfo()
+		log.Println("[measureRender] ", sceneName, "RSS: ", float64(memoryInfo.RSS)/1e6, "MB")
+	}
+}
+
 func runRender(sceneName string) {
 	// save scene files in the file with the same name
 
@@ -45,7 +71,7 @@ func runRender(sceneName string) {
 	// do render until success
 	start := time.Now()
 	for {
-		doRender(cmd)
+		doRender(sceneName, cmd)
 		err := cmd.Wait()
 		if err != nil {
 			log.Println("exec spaintgui-processVoxel error: ", err)
@@ -54,6 +80,7 @@ func runRender(sceneName string) {
 			break
 		}
 	}
+
 	duration := time.Since(start)
 	log.Println("[runRender] Render", sceneName, "cost", duration, "ms!!!!!!!!!!!!!!!!!!!!!")
 	TimeCostLock.Lock()

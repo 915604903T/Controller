@@ -14,6 +14,8 @@ import (
 	"runtime"
 	"sync"
 	"time"
+
+	"github.com/shirou/gopsutil/process"
 )
 
 func unzipFile(archiveName string) {
@@ -99,6 +101,30 @@ func requestZipSceneFile(scene, clientAddr string) {
 	}
 
 }
+
+func measureRelocalise(scene1, scene2 string, cmd *exec.Cmd) {
+	pid := cmd.Process.Pid
+	p, err := process.NewProcess(int32(pid))
+	if err != nil {
+		log.Println("[measureRelocalise] process", pid, "not exist!!!")
+		return
+	}
+	for ; ; time.Sleep(time.Second) {
+		isRunning, err := p.IsRunning()
+		if err != nil {
+			log.Println("[measureRelocalise] process", pid, "is running return error!!!")
+			continue
+		}
+		if !isRunning {
+			break
+		}
+		cpuPercent, _ := p.CPUPercent()
+		log.Println("[measureRelocalise] ", scene1+"-"+scene2, "cpuUsage: ", cpuPercent, "%")
+		memoryInfo, _ := p.MemoryInfo()
+		log.Println("[measureRelocalise] ", scene1+"-"+scene2, "RSS: ", float64(memoryInfo.RSS)/1e6, "MB")
+	}
+}
+
 func getFileAndRelocalise(relocInfo relocaliseInfo) {
 	// request for zip file
 	scene1, scene2 := relocInfo.Scene1Name, relocInfo.Scene2Name
@@ -158,6 +184,7 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 	if err = cmd.Start(); err != nil {
 		panic(err)
 	}
+	go measureRelocalise(scene1, scene2, cmd)
 	/*
 		for {
 			tmp := make([]byte, 1024)

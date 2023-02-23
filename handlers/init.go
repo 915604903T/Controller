@@ -14,6 +14,7 @@ func init() {
 	// RelocaliseFinish = make(chan relocaliseInfo)
 	// MergeMeshFinish = make(chan MeshInfo)
 	requestFile = make(map[string]*sync.Mutex)
+
 	TimeCost = make(map[string]time.Duration)
 
 	CUDA_DEVICE = os.Getenv("CUDA_DEVICE")
