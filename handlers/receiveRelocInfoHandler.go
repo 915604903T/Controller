@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"sync"
+	"time"
 )
 
 func unzipFile(archiveName string) {
@@ -115,12 +116,23 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 		requestFileLock.Unlock()
 	}
 	// if scene2 file not exist, request target client to send zip files
+	var start time.Time
+	var d1 time.Duration
 	lock.Lock()
 	_, err := os.Stat(scene2)
 	if os.IsNotExist(err) {
+		start = time.Now()
 		requestZipSceneFile(scene2, relocInfo.Scene2IP)
+		d1 = time.Since(start)
 	}
 	lock.Unlock()
+
+	if os.IsNotExist(err) {
+		log.Println("[getFileAndRelocalise] Request zip file", scene2, "cost", d1, "ms!!!!!!!!!!!!!!!!!!!!!")
+		TimeCostLock.Lock()
+		TimeCost[scene2+"-RequestZipFile"] = d1
+		TimeCostLock.Unlock()
+	}
 
 	// run relocalise process
 	cmd := exec.Command("spaintgui-relocalise",
@@ -142,6 +154,7 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 		}
 		cmd.Stderr = cmd.Stdout
 	*/
+	start = time.Now()
 	if err = cmd.Start(); err != nil {
 		panic(err)
 	}
@@ -157,11 +170,24 @@ func getFileAndRelocalise(relocInfo relocaliseInfo) {
 	*/
 	if err = cmd.Wait(); err != nil {
 		log.Println("exec spaintgui-relocalise error: ", err)
+
+		d2 := time.Since(start)
+		log.Println("[getFileAndRelocalise] run relocalise unsuccessfully", scene1, scene2, "cost", d2, "ms!!!!!!!!!!!!!!!!!!!!!")
+		TimeCostLock.Lock()
+		TimeCost[scene1+"-"+scene2+"-ReocaliseUnsuccessful"] = d2
+		TimeCostLock.Unlock()
+
 		dealFailedReloclise()
+		return
 	}
 
 	// send finish signal to RelocaliseFinish
 	// RelocaliseFinish <- relocInfo
+	d2 := time.Since(start)
+	log.Println("[getFileAndRelocalise] run relocalise", scene1, scene2, "cost", d2, "ms!!!!!!!!!!!!!!!!!!!!!")
+	TimeCostLock.Lock()
+	TimeCost[scene1+"-"+scene2+"-Reocalise"] = d2
+	TimeCostLock.Unlock()
 	dealRelocaliseFinish(relocInfo)
 }
 
@@ -184,4 +210,3 @@ func MakeReceiveRelocInfoHandler() http.HandlerFunc {
 		go getFileAndRelocalise(relocInfo)
 	}
 }
-

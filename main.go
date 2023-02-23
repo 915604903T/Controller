@@ -36,6 +36,11 @@ func main() {
 			log.Fatalf("Unable to shutdown NVML: %v", nvml.ErrorString(ret))
 		}
 	}()
+	defer func() {
+		for k, v := range handlers.TimeCost {
+			fmt.Println(k, ": ", v, "ms")
+		}
+	}()
 	// defer close(handlers.RenderFinish)
 	// defer close(handlers.RelocaliseFinish)
 

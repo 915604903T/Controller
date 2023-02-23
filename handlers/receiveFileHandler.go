@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -34,6 +35,7 @@ func doRender(cmd *exec.Cmd) {
 }
 func runRender(sceneName string) {
 	// save scene files in the file with the same name
+
 	cmd := exec.Command("spaintgui-processVoxel",
 		"-f", "collaborative_config.ini",
 		"--name", sceneName,
@@ -41,6 +43,7 @@ func runRender(sceneName string) {
 	cmd.Env = append(cmd.Env, "CUDA_VISIBLE_DEVICES="+CUDA_DEVICE)
 	fmt.Println("cmd args: ", cmd.Args)
 	// do render until success
+	start := time.Now()
 	for {
 		doRender(cmd)
 		err := cmd.Wait()
@@ -51,6 +54,11 @@ func runRender(sceneName string) {
 			break
 		}
 	}
+	duration := time.Since(start)
+	log.Println("[runRender] Render", sceneName, "cost", duration, "ms!!!!!!!!!!!!!!!!!!!!!")
+	TimeCostLock.Lock()
+	TimeCost[sceneName+"-Render"] = duration
+	TimeCostLock.Unlock()
 
 	// RenderFinish <- sceneName
 	dealRenderFinish(sceneName)
@@ -58,9 +66,10 @@ func runRender(sceneName string) {
 
 func MakeReceiveFileHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
 		vars := mux.Vars(r)
 		sceneName := vars["name"]
-		log.Print("receive file and run render request: ", sceneName)
+		log.Print("[MakeReceiveFileHandler] receive file and run render request: ", sceneName)
 		defer r.Body.Close()
 
 		// Create directory to save images, poses, calib.txt
@@ -89,7 +98,13 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 		}
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("save file success!"))
+		duration := time.Since(start)
+
+		log.Println("[MakeReceiveFileHandler] Receive", sceneName, "cost", duration, "ms!!!!!!!!!!!!!!!!!!!!!")
+		TimeCostLock.Lock()
+		TimeCost[sceneName+"-ReceiveUserFile"] = duration
+		TimeCostLock.Unlock()
+
 		go runRender(sceneName)
 	}
 }
-

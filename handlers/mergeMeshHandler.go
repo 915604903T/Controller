@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 )
 
 func requestAndSaveFile(fileName, clientAddr string) {
@@ -75,6 +76,7 @@ func doMergeMesh(mergeMeshInfo MergeMeshInfo) {
 		panic(err)
 	}
 	cmd.Stderr = cmd.Stdout
+	start := time.Now()
 	if err = cmd.Start(); err != nil {
 		panic(err)
 	}
@@ -87,22 +89,22 @@ func doMergeMesh(mergeMeshInfo MergeMeshInfo) {
 		}
 	}
 	if err = cmd.Wait(); err != nil {
-		log.Println("exec spaintgui-relocalise error: ", err)
+		d2 := time.Since(start)
+		log.Println("[getFileAndRelocalise] merge mesh unsuccessfully", namePre, "cost", d2, "ms!!!!!!!!!!!!!!!!!!!!!")
+		TimeCostLock.Lock()
+		TimeCost[namePre+"-MergeMesh"] = d2
+		TimeCostLock.Unlock()
+		log.Println("exec merge mesh error: ", err)
+	} else {
+		d2 := time.Since(start)
+		log.Println("[getFileAndRelocalise] merge mesh", namePre, "cost", d2, "ms!!!!!!!!!!!!!!!!!!!!!")
+		TimeCostLock.Lock()
+		TimeCost[namePre+"-MergeMesh"] = d2
+		TimeCostLock.Unlock()
+		log.Println("exec merge mesh error: ", err)
 	}
 
 	// Remove unnecessary files
-	/*
-		err = os.Remove(mesh1FileName)
-		if err != nil {
-			log.Println("remove ", mesh1FileName, " err: ", err)
-			panic(err)
-		}
-		err = os.Remove(mesh2FileName)
-		if err != nil {
-			log.Println("remove ", mesh2FileName, " err: ", err)
-			panic(err)
-		}
-	*/
 	err = os.Remove(poseFileName)
 	if err != nil {
 		log.Println("remove ", poseFileName, " err: ", err)
