@@ -19,13 +19,15 @@ if __name__=='__main__':
     for i in range(4):
         line = poseFile.readline()
         pose[i] = np.fromstring(line, dtype='float64', sep=' ')
-    pc1 = o3d.io.read_point_cloud(args.file1)
-    pc2 = o3d.io.read_point_cloud(args.file2)
-    pc2.transform(pose)
-    pc = pc1 + pc2
-    pc = pc.voxel_down_sample(voxel_size=0.00001)
-    pc.estimate_normals()
-    o3d.io.write_point_cloud(args.outFile, pc)
+    mesh1 = o3d.io.read_triangle_mesh(args.file1)
+    mesh1.remove_duplicated_vertices()
+    mesh1.remove_degenerate_triangles()
+    mesh2 = o3d.io.read_triangle_mesh(args.file2)
+    mesh2.remove_duplicated_vertices()
+    mesh2.remove_degenerate_triangles()
+    mesh2.transform(pose)
+    mesh = mesh1 + mesh2
+    o3d.io.write_triangle_mesh(args.outFile, mesh)
     print("success merge", args.file1, args.file2, "to", args.outFile)
     os.remove(args.file1)
     os.remove(args.file2)

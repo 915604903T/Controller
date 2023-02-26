@@ -76,16 +76,16 @@ func measureRender(sceneName string, cmd *exec.Cmd) {
 
 func runRender(sceneName string) {
 	// save scene files in the file with the same name
-
-	cmd := exec.Command("spaintgui-processVoxel",
-		"-f", "collaborative_config.ini",
-		"--name", sceneName,
-		"-s", sceneName, "-t", "Disk")
-	cmd.Env = append(cmd.Env, "CUDA_VISIBLE_DEVICES="+CUDA_DEVICE)
-	fmt.Println("cmd args: ", cmd.Args)
-	// do render until success
-	start := time.Now()
-	for ; ; time.Sleep(time.Second * 2) {
+	var start time.Time
+	for ; ; time.Sleep(time.Second * 5) {
+		cmd := exec.Command("spaintgui-processVoxel",
+			"-f", "collaborative_config.ini",
+			"--name", sceneName,
+			"-s", sceneName, "-t", "Disk")
+		cmd.Env = append(cmd.Env, "CUDA_VISIBLE_DEVICES="+CUDA_DEVICE)
+		fmt.Println("cmd args: ", cmd.Args)
+		// do render until success
+		start = time.Now()
 		doRender(sceneName, cmd)
 		err := cmd.Wait()
 		if err != nil {
@@ -95,7 +95,6 @@ func runRender(sceneName string) {
 			break
 		}
 	}
-
 	duration := time.Since(start)
 	log.Println("[runRender] Render", sceneName, "cost", duration, "s!!!!!!!!!!!!!!!!!!!!!")
 	TimeCostLock.Lock()
