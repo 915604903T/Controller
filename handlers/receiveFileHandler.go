@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"bytes"
 	"fmt"
+	"image"
+	"image/png"
 	"io"
 	"io/ioutil"
 	"log"
@@ -12,6 +15,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/nfnt/resize"
 	"github.com/shirou/gopsutil/process"
 )
 
@@ -132,8 +136,19 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 				fmt.Printf("FormData=[%s]\n", string(data))
 			} else { // This is FileData
 				//Filename not contains the directory
-				dst, _ := os.Create(filepath.Join(sceneName, part.FileName()))
-				io.Copy(dst, part)
+				name := filepath.Join(sceneName, part.FileName())
+				dst, _ := os.Create(name)
+				var data []byte
+				_, err := part.Read(data)
+				if err != nil {
+					log.Println(name, "part read err: ", err)
+					panic(err)
+				}
+				img, format, _ := image.Decode(bytes.NewReader(data))
+				log.Println("this is ", name, "format: ", format)
+				originImg := resize.Resize(uint(img.Bounds().Max.X*2), 0, img, resize.NearestNeighbor)
+				png.Encode(dst, originImg)
+				// io.Copy(dst, part)
 				dst.Close()
 			}
 		}
