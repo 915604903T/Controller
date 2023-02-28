@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+var HasGPU bool = true
 var ClientId string = "1"
 var CUDA_DEVICE string
 var CenterServerAddr string = "http://172.24.109.142:23333"

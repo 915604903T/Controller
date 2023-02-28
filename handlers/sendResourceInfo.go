@@ -17,17 +17,18 @@ import (
 func SendResourceInfo() {
 	for {
 		resourceInfo := ResourceInfo{}
-		// get gpu info
-		cudaDevice, _ := strconv.Atoi(CUDA_DEVICE)
-		device, ret := nvml.DeviceGetHandleByIndex(cudaDevice)
-		if ret != nvml.SUCCESS {
-			log.Fatalf("Unable to get device index %d: %v", cudaDevice, nvml.ErrorString(ret))
+		if HasGPU {
+			cudaDevice, _ := strconv.Atoi(CUDA_DEVICE)
+			device, ret := nvml.DeviceGetHandleByIndex(cudaDevice)
+			if ret != nvml.SUCCESS {
+				log.Fatalf("Unable to get device index %d: %v", cudaDevice, nvml.ErrorString(ret))
+			}
+			memoryInfo, ret := device.GetMemoryInfo()
+			if ret != nvml.SUCCESS {
+				log.Fatalf("Unable to get device memory info %d: %v", cudaDevice, nvml.ErrorString(ret))
+			}
+			resourceInfo.GPUMemoryFree = memoryInfo.Free
 		}
-		memoryInfo, ret := device.GetMemoryInfo()
-		if ret != nvml.SUCCESS {
-			log.Fatalf("Unable to get device memory info %d: %v", cudaDevice, nvml.ErrorString(ret))
-		}
-		resourceInfo.GPUMemoryFree = memoryInfo.Free
 
 		// get cpu info
 		cpuPercent, err := cpu.Percent(time.Second, false)

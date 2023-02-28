@@ -23,6 +23,7 @@ func init() {
 
 	ret := nvml.Init()
 	if ret != nvml.SUCCESS {
-		log.Fatalf("Unable to initialize NVML: %v", nvml.ErrorString(ret))
+		log.Printf("Unable to initialize NVML: %v\n", nvml.ErrorString(ret))
+		HasGPU = false
 	}
 }
