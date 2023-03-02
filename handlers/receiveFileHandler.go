@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -138,18 +139,22 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 				//Filename not contains the directory
 				name := filepath.Join(sceneName, part.FileName())
 				dst, _ := os.Create(name)
-				var data []byte
-				_, err := part.Read(data)
-				if err != nil {
-					log.Println(name, "part read err: ", err)
-					panic(err)
+				if strings.Contains(part.FileName(), "png") {
+					var data []byte
+					_, err := part.Read(data)
+					if err != nil {
+						log.Println(name, "part read err: ", err)
+						panic(err)
+					}
+					img, format, _ := image.Decode(bytes.NewReader(data))
+					log.Println("this is ", name, "format: ", format)
+					originImg := resize.Resize(uint(img.Bounds().Max.X*2), 0, img, resize.NearestNeighbor)
+					png.Encode(dst, originImg)
+					dst.Close()
+				} else {
+					io.Copy(dst, part)
+					dst.Close()
 				}
-				img, format, _ := image.Decode(bytes.NewReader(data))
-				log.Println("this is ", name, "format: ", format)
-				originImg := resize.Resize(uint(img.Bounds().Max.X*2), 0, img, resize.NearestNeighbor)
-				png.Encode(dst, originImg)
-				// io.Copy(dst, part)
-				dst.Close()
 			}
 		}
 		w.WriteHeader(http.StatusOK)
