@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"bytes"
 	"fmt"
 	"image"
 	"image/png"
@@ -140,14 +139,8 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 				name := filepath.Join(sceneName, part.FileName())
 				dst, _ := os.Create(name)
 				if strings.Contains(part.FileName(), "png") {
-					var data []byte
-					_, err := part.Read(data)
-					if err != nil {
-						log.Println(name, "part read err: ", err)
-						panic(err)
-					}
-					img, format, _ := image.Decode(bytes.NewReader(data))
-					log.Println("this is ", name, "format: ", format)
+					img, format, _ := image.Decode(part)
+					log.Println("this is ", name, "format: ", format, "size: ", img.Bounds().Max.X, img.Bounds().Max.Y)
 					originImg := resize.Resize(uint(img.Bounds().Max.X*2), 0, img, resize.NearestNeighbor)
 					png.Encode(dst, originImg)
 					dst.Close()
