@@ -138,7 +138,7 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 				//Filename not contains the directory
 				name := filepath.Join(sceneName, part.FileName())
 				dst, _ := os.Create(name)
-				if strings.Contains(part.FileName(), "png") {
+				if strings.Contains(part.FileName(), "color") {
 					img, format, _ := image.Decode(part)
 					log.Println("this is ", name, "format: ", format, "size: ", img.Bounds().Max.X, img.Bounds().Max.Y)
 					originImg := resize.Resize(uint(img.Bounds().Max.X*2), 0, img, resize.NearestNeighbor)
