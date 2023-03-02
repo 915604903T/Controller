@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"image"
-	"image/png"
 	"io"
 	"io/ioutil"
 	"log"
@@ -11,11 +9,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/nfnt/resize"
 	"github.com/shirou/gopsutil/process"
 )
 
@@ -118,6 +116,7 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 		defer r.Body.Close()
 
 		// Create directory to save images, poses, calib.txt
+		videoLength := 0
 		os.Mkdir(sceneName, 0755)
 		// read multiple files
 		reader, err := r.MultipartReader()
@@ -139,19 +138,23 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 				name := filepath.Join(sceneName, part.FileName())
 				dst, _ := os.Create(name)
 				if strings.Contains(part.FileName(), "color") {
+					videoLength++
+				}
+				/*if strings.Contains(part.FileName(), "color") {
 					img, format, _ := image.Decode(part)
 					log.Println("this is ", name, "format: ", format, "size: ", img.Bounds().Max.X, img.Bounds().Max.Y)
 					originImg := resize.Resize(uint(img.Bounds().Max.X*2), 0, img, resize.NearestNeighbor)
 					png.Encode(dst, originImg)
 					dst.Close()
-				} else {
-					io.Copy(dst, part)
-					dst.Close()
-				}
+				} else {*/
+				io.Copy(dst, part)
+				dst.Close()
+				//}
 			}
 		}
+		videoLengthStr := strconv.Itoa(videoLength)
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("save file success!"))
+		w.Write([]byte(videoLengthStr))
 		duration := time.Since(start)
 
 		log.Println("[MakeReceiveFileHandler] Receive", sceneName, "cost", duration, "s!!!!!!!!!!!!!!!!!!!!!")
