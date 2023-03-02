@@ -10,7 +10,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -107,6 +106,28 @@ func runRender(sceneName string) {
 	dealRenderFinish(sceneName)
 }
 
+func decodeVideo2Img(sceneName string) int {
+	outputFileFormat := sceneName + "/frame-%06d.color.png"
+	inputFile := filepath.Join(sceneName, sceneName+".mp4")
+	cmd := exec.Command("ffmpeg",
+		"-i", inputFile,
+		"-vsync", "vfr",
+		"-q:v", "2",
+		"-f", "image2", outputFileFormat)
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println("Error extracting frames from video:", err)
+		return -1
+	}
+	// count frames
+	files, err := filepath.Glob(filepath.Join(sceneName, "*.color.png"))
+	length := len(files)
+	// delete video file
+	os.Remove(inputFile)
+	log.Printf("[decodeVideo2Img]: %d frame save done!!!!\n", length)
+	return length
+}
+
 func MakeReceiveFileHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
@@ -116,9 +137,8 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 		defer r.Body.Close()
 
 		// Create directory to save images, poses, calib.txt
-		videoLength := 0
 		os.Mkdir(sceneName, 0755)
-		// read multiple files
+		// receive and save multiple files
 		reader, err := r.MultipartReader()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -137,30 +157,28 @@ func MakeReceiveFileHandler() http.HandlerFunc {
 				//Filename not contains the directory
 				name := filepath.Join(sceneName, part.FileName())
 				dst, _ := os.Create(name)
-				if strings.Contains(part.FileName(), "color") {
-					videoLength++
-				}
-				/*if strings.Contains(part.FileName(), "color") {
-					img, format, _ := image.Decode(part)
-					log.Println("this is ", name, "format: ", format, "size: ", img.Bounds().Max.X, img.Bounds().Max.Y)
-					originImg := resize.Resize(uint(img.Bounds().Max.X*2), 0, img, resize.NearestNeighbor)
-					png.Encode(dst, originImg)
-					dst.Close()
-				} else {*/
 				io.Copy(dst, part)
 				dst.Close()
-				//}
 			}
 		}
-		videoLengthStr := strconv.Itoa(videoLength)
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(videoLengthStr))
 		duration := time.Since(start)
 
 		log.Println("[MakeReceiveFileHandler] Receive", sceneName, "cost", duration, "s!!!!!!!!!!!!!!!!!!!!!")
 		TimeCostLock.Lock()
 		TimeCost[sceneName+"-ReceiveUserFile"] = duration
 		TimeCostLock.Unlock()
+
+		// decode the mp4 to images
+		t1 := time.Now()
+		length := decodeVideo2Img(sceneName)
+		duration = time.Since(t1)
+		TimeCostLock.Lock()
+		TimeCost[sceneName+"-DecodeVideo"] = duration
+		TimeCostLock.Unlock()
+
+		videoLength := strconv.Itoa(length)
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(videoLength))
 
 		go runRender(sceneName)
 	}
