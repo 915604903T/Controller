@@ -58,13 +58,13 @@ func MakeSendSceneModelHandler() http.HandlerFunc {
 			runtime.LockOSThread()
 			for _, fileName := range archiveFiles {
 				// log.Println("zip ", fileName)
-				file, err := os.Open(fileName)
-				if err != nil {
-					panic(err)
-				}
 				tmpWriter, err := zipWriter.Create(fileName)
 				if err != nil {
 					log.Println("create zip file error: ", err)
+					panic(err)
+				}
+				file, err := os.Open(fileName)
+				if err != nil {
 					panic(err)
 				}
 				_, err = io.Copy(tmpWriter, file)

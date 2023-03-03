@@ -31,7 +31,7 @@ func SendResourceInfo() {
 		}
 
 		// get cpu info
-		cpuPercent, err := cpu.Percent(time.Second, false)
+		cpuPercent, err := cpu.Percent(time.Second, true)
 		if err != nil {
 			panic(err)
 		}
